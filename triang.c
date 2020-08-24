@@ -398,3 +398,42 @@ int get_adjacent_triangle_share_endpoint(int i, int origen, int endpoint, int *p
 	}
 	return -2;
 }
+
+
+int count_FrontierEdges(int triangle, int *adj){
+    int adj_counter = 0;
+    int j;
+    for(j = 0; j < 3; j++){ 
+        if(adj[3*triangle + j] == NO_ADJ){
+            adj_counter++;
+        }
+    }
+    return adj_counter;
+}
+
+
+int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, int *adj, int tnumber){
+	int i,j;
+	for (i = 0; i < tnumber; i++)
+		for (j = 0; j < 3; j++)
+			if(triangles[3*i +j] == v  && ( adj[3*i + ((j + 1)%3)] == -1 || adj[3*i + ((j + 2)%3)] == -1 ))
+				return i;
+				/*printf("\n%d | Triangles %d %d %d | ADJ  %d %d %d\n", i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );*/
+	return -1;
+}
+
+int search_another_vertex(int i, int v, int *triangles, int *adj){
+	if(adj[3*i+0] != NO_ADJ && triangles[3*i +1] == v)
+		return triangles[3*i +2];
+	else if(adj[3*i+0] != NO_ADJ && triangles[3*i +2] == v)
+		return triangles[3*i +1];
+	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +0] == v)
+		return triangles[3*i +2];
+	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +2] == v)
+		return triangles[3*i +0];
+	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +0] == v)
+		return triangles[3*i +1];
+	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +1] == v)
+		return triangles[3*i +0];
+	return -1;
+}

@@ -7,8 +7,52 @@
 #include "consts.h"
 #include "triang.h"
 
-/* guarda un poly en la malla
-    retorna el nuevo indice de la malla */
+
+void split_poly(int *original_poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int e1, int e2){
+    int pos1, pos2,i;
+    for(i =0; i< length_poly; i++){
+        if(original_poly[i] == e1)
+            pos1 = i;
+        if(original_poly[i] == e2)
+            pos2 = i;
+    }
+    printf("pos1: %d, pos2: %d \n", pos1, pos2);
+    
+    *length_poly1 = abs(pos1-pos2) +1;
+    *length_poly2 = length_poly - *length_poly1+1;
+
+    for (i = 0; i < *length_poly1 ; i++)
+        poly1[i] = original_poly[(pos1 + i) %length_poly];
+
+    for (i = 0; i < *length_poly2 ; i++)
+        poly2[i] = original_poly[(pos2 + i) %length_poly];
+}
+
+void print_poly(int *poly, int length_poly){
+    int i;
+    printf("(%d)", length_poly);
+    for (i = 0; i < length_poly; i++)
+        printf(" %d", poly[i]);
+    printf("\n");
+}
+
+double get_area_poly(int *poly, int length_poly, double *r){
+    double area = 0.0;
+    double x1,y1,x2,y2;
+    int i;
+    for (i = 0; i < length_poly-1; i++)
+    {
+        x1=r[2*poly[i] + 0];
+        y1=r[2*poly[i] + 1];
+        x2=r[2*poly[i+1] + 0];
+        y2=r[2*poly[i+1] + 1];
+        area += (x1*y2 - y1*x2);
+    }
+    return fabs(area/2);
+}
+
+
+
 void save_to_mesh(int *mesh, int *poly, int *i_mesh, int length_poly, int *pos_poly, int *id_pos_poly){
     int i;
     for (i = 0; i < length_poly; i++){
@@ -20,16 +64,6 @@ void save_to_mesh(int *mesh, int *poly, int *i_mesh, int length_poly, int *pos_p
 	*id_pos_poly = *id_pos_poly + 1;
 }
 
-int count_FrontierEdges(int triangle, int *adj){
-    int adj_counter = 0;
-    int j;
-    for(j = 0; j < 3; j++){ 
-        if(adj[3*triangle + j] == NO_ADJ){
-            adj_counter++;
-        }
-    }
-    return adj_counter;
-}
 
 int count_BarrierEdges(int *poly, int length_poly){
     int count = 0;
@@ -51,43 +85,10 @@ int get_vertex_BarrierEdge(int *poly, int length_poly){
         x = i % length_poly;
         y = (i+2) % length_poly;
         if (poly[x] == poly[y])
-            return (i+1) %length_poly;
+            return poly[(i+1) %length_poly];
     }
     return -1;
 }
-
-int get_area_poly(int *poly, int length_poly, int *r){
-    int area = 0;
-    int i;
-    int x1,y1,x2,y2;
-    for (i = 0; i < length_poly-1; i++)
-    {
-        x1=r[2*poly[i] + 0];
-        y1=r[2*poly[i] + 1];
-        x2=r[2*poly[i+1] + 0];
-        y2=r[2*poly[i+1] + 1];
-        area += (x1*y2 - y1*x2);
-    }
-    return abs(area/2);
-}
-
-void split_poly(int *original_poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int e1, int e2){
-    int pos1, pos2,i;
-    for(i =0; i< length_poly; i++){
-        if(original_poly[i] == e1)
-            pos1 = i;
-        if(original_poly[i] == e2)
-            pos2 = i;
-    }
-    *length_poly1 = abs(pos1-pos2);
-    *length_poly2 = length_poly - *length_poly1;
-    for (i = 0; i < *length_poly1; i++)
-        poly1[i] = original_poly[(pos1 + i) %length_poly];
-    for (i = 0; i < *length_poly2; i++)
-        poly2[i] = original_poly[(pos2 + i) %length_poly];
-}
-
-
 
 
 int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * visited, int i, int adj_counter) {

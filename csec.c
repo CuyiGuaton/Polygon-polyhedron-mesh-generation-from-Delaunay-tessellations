@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	
 	/* Se crean los poligonos */
 	
-	int length_poly = 0;
+	
 	int i_mesh = 0;
 	int num_fe;
 	int *poly = (int *)malloc(tnumber*sizeof(int));
@@ -128,7 +128,11 @@ int main(int argc, char **argv)
 	int *mesh;
 	mesh = (int *)malloc(3*tnumber*sizeof(int));
 
-
+	int *poly1 = (int *)malloc(tnumber*sizeof(int));
+	int *poly2 = (int *)malloc(tnumber*sizeof(int));
+	int length_poly = 0;
+	int length_poly1 = 0;
+	int length_poly2 = 0;
 	for(i = 0; i < tnumber; i++)
 	{
 		/*busca fronter edge en un triangulo, hacer función está wea*/
@@ -139,6 +143,25 @@ int main(int argc, char **argv)
 
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			
+			if(count_BarrierEdges(poly, length_poly) > 0){
+				
+				printf("A: %.2lf ", get_area_poly(poly, length_poly,r));
+				print_poly(poly, length_poly);
+				int v_be = get_vertex_BarrierEdge(poly, length_poly);
+				int t = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
+				int v_other = search_another_vertex(t, v_be, triangles, adj);
+				printf("%d-%d ",v_be, v_other);
+				printf("%d\n",t);
+
+				split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
+				print_poly(poly1, length_poly1);
+				print_poly(poly2, length_poly2);
+				double A1 =get_area_poly(poly1, length_poly1,r);
+				double A2 = get_area_poly(poly2, length_poly2,r);
+				printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf ", A1 , A2, A1 + A2);
+				return 0;
+			}
+
 			save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);
 			
 		}
@@ -153,9 +176,9 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	
+	/*
 	write_geomview(r,triangles, pnumber, tnumber,i_mesh, mesh, id_pos_poly, pos_poly);
-
+*/
 
 	free(r);
 	free(triangles);
