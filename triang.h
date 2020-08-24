@@ -10,4 +10,4 @@ extern int is_continuous(int i, int endpoint, int *p );
 extern int get_adjacent_triangle_share_endpoint(int i, int origen, int endpoint, int *p, int *adj);
 extern int count_FrontierEdges(int triangle, int *adj);
 extern int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, int *adj, int tnumber);
-extern int search_another_vertex(int i, int v, int *triangles, int *adj);
+extern int search_another_vertex(int i, int v, int origen, int *triangles, int *adj);

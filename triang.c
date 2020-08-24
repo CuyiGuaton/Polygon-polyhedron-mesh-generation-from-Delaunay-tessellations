@@ -360,7 +360,7 @@ int is_continuous(int i, int endpoint, int *p ){
 	int p0 = p[3*i + 0];
 	int p1 = p[3*i + 1];
 	int p2 = p[3*i + 2];
-	int end = p[endpoint];
+	int end = endpoint;
 
 	if(end == p0){
 		return  0; /* indica que está en p0*/
@@ -373,6 +373,10 @@ int is_continuous(int i, int endpoint, int *p ){
 }
 
 
+/* 
+	Busca un triangulo adjacente que comparte el mismo endpoint.
+	Origen es el triangulo de donde se viene, -1 si se quiere que se pueda devolver a triangulo anterior.
+*/
 int get_adjacent_triangle_share_endpoint(int i, int origen, int endpoint, int *p, int *adj){
 	int p0 = p[3*i + 0];
 	int p1 = p[3*i + 1];
@@ -416,24 +420,96 @@ int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, int *adj,
 	int i,j;
 	for (i = 0; i < tnumber; i++)
 		for (j = 0; j < 3; j++)
-			if(triangles[3*i +j] == v  && ( adj[3*i + ((j + 1)%3)] == -1 || adj[3*i + ((j + 2)%3)] == -1 ))
+			if(triangles[3*i +j] == v  && ( adj[3*i + ((j + 1)%3)] == -1 || adj[3*i + ((j + 2)%3)] == -1 )){
+				/*printf("\n%d | Triangles %d %d %d | ADJ  %d %d %d\n", i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] ); */
 				return i;
-				/*printf("\n%d | Triangles %d %d %d | ADJ  %d %d %d\n", i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );*/
+			}
+				
 	return -1;
 }
 
-int search_another_vertex(int i, int v, int *triangles, int *adj){
-	if(adj[3*i+0] != NO_ADJ && triangles[3*i +1] == v)
-		return triangles[3*i +2];
-	else if(adj[3*i+0] != NO_ADJ && triangles[3*i +2] == v)
-		return triangles[3*i +1];
-	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +0] == v)
-		return triangles[3*i +2];
-	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +2] == v)
-		return triangles[3*i +0];
-	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +0] == v)
-		return triangles[3*i +1];
-	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +1] == v)
-		return triangles[3*i +0];
+int search_prev_vertex_to_split(int i, int v, int origen, int *triangles, int *adj){
+	int t0, t1,t2;
+	int a0, a1, a2;
+
+	t0 = triangles[3*i + 0];
+	t1 = triangles[3*i + 1];
+	t2 = triangles[3*i + 2];
+
+	a0 = adj[3*i + 0];
+	a1 = adj[3*i + 1];
+	a2 = adj[3*i + 2];
+
+	if(t1 == v && origen == a0)
+			return t2;
+	else  if(t2 == v && origen == a0)
+			return t1;
+	else  if(t0 == v && origen == a1)
+			return t2;
+	else  if(t2 == v && origen == a1)
+			return t0;
+	else  if(t0 == v && origen == a2)
+			return t1;
+	else  if(t1 == v && origen == a2)
+			return t0;	
 	return -1;
 }
+
+int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *adj){
+	int t0, t1,t2;
+	int a0, a1, a2;
+
+	t0 = triangles[3*i + 0];
+	t1 = triangles[3*i + 1];
+	t2 = triangles[3*i + 2];
+
+	a0 = adj[3*i + 0];
+	a1 = adj[3*i + 1];
+	a2 = adj[3*i + 2];
+
+	if(a0 != NO_ADJ && t1 == v && origen != a0)
+			return t2;
+	else  if(a0 != NO_ADJ && t2 == v && origen != a0)
+			return t1;
+	else  if(a1 != NO_ADJ && t0 == v && origen != a1)
+			return t2;
+	else  if(a1 != NO_ADJ && t2 == v && origen != a1)
+			return t0;
+	else  if(a2 != NO_ADJ && t0 == v && origen != a2)
+			return t1;
+	else  if(a2 != NO_ADJ && t1 == v && origen != a2)
+			return t0;
+/*
+	if(adj[3*i+0] != NO_ADJ && triangles[3*i +1] == v && origen != adj[3*i+0])
+		return triangles[3*i +2];
+	else if(adj[3*i+0] != NO_ADJ && triangles[3*i +2] == v && origen != adj[3*i+0])
+		return triangles[3*i +1];
+	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +0] == v && origen != adj[3*i+1])
+		return triangles[3*i +2];
+	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +2] == v && origen != adj[3*i+1])
+		return triangles[3*i +0];
+	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +0] == v && origen != adj[3*i+2])
+		return triangles[3*i +1];
+	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +1] == v && origen != adj[3*i+2])
+		return triangles[3*i +0];
+*/
+	return -1;
+}
+
+/*
+7 | Triangles 34 19 49 | ADJ  10 8 -1
+
+8 | Triangles 34 97 49 | ADJ  70 7 -1
+
+10 | Triangles 84 19 49 | ADJ  7 33 11
+
+32 | Triangles 32 88 49 | ADJ  71 -1 -1
+
+33 | Triangles 32 84 49 | ADJ  10 -1 -1
+
+70 | Triangles 82 97 49 | ADJ  8 71 -1
+
+71 | Triangles 82 88 49 | ADJ  32 70 -1
+
+
+*/

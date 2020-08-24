@@ -143,13 +143,17 @@ int main(int argc, char **argv)
 
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			
-			if(count_BarrierEdges(poly, length_poly) > 0){
+			int num_BE = count_BarrierEdges(poly, length_poly);
+			if( num_BE > 0){
 				
-				printf("A: %.2lf ", get_area_poly(poly, length_poly,r));
+				double A_poly = get_area_poly(poly, length_poly,r);
+				double opt = A_poly/num_BE;
+
+				printf("A: %.2lf ", A_poly);
 				print_poly(poly, length_poly);
 				int v_be = get_vertex_BarrierEdge(poly, length_poly);
 				int t = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
-				int v_other = search_another_vertex(t, v_be, triangles, adj);
+				int v_other = search_next_vertex_to_split(t, v_be, -2, triangles, adj);
 				printf("%d-%d ",v_be, v_other);
 				printf("%d\n",t);
 
@@ -158,7 +162,42 @@ int main(int argc, char **argv)
 				print_poly(poly2, length_poly2);
 				double A1 =get_area_poly(poly1, length_poly1,r);
 				double A2 = get_area_poly(poly2, length_poly2,r);
-				printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf ", A1 , A2, A1 + A2);
+				printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf\n", A1 , A2, A1 + A2);
+				double r_prev = fabs(fminf(A1, A2) - opt);
+				
+				double r_act;
+				int aux, origin = t;
+				while (1){
+					aux = t;
+					t = get_adjacent_triangle_share_endpoint(t, origin, v_be, triangles, adj);
+					v_other = search_next_vertex_to_split(t, v_be, origin, triangles, adj);
+					origin = aux;
+
+					printf("%d-%d ",v_be, v_other);
+					printf("%d\n",t);
+
+					split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
+					print_poly(poly1, length_poly1);
+					print_poly(poly2, length_poly2);
+					A1 =get_area_poly(poly1, length_poly1,r);
+					A2 = get_area_poly(poly2, length_poly2,r);
+					printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf\n", A1 , A2, A1 + A2);
+					r_act = fabs(fminf(A1, A2) - opt);
+					if (r_act < r_prev)
+						r_prev = r_act;
+					else{
+						v_other = search_prev_vertex_to_split(t, v_be, origin, triangles, adj);
+						split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
+						break;
+					}
+				}
+				printf("%d-%d ",v_be, v_other);
+				printf("%d\n",t);
+				print_poly(poly1, length_poly1);
+				print_poly(poly2, length_poly2);
+				A1 =get_area_poly(poly1, length_poly1,r);
+				A2 = get_area_poly(poly2, length_poly2,r);
+				printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf\n", A1 , A2, A1 + A2);
 				return 0;
 			}
 

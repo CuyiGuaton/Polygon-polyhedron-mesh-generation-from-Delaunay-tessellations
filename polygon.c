@@ -28,6 +28,13 @@ void split_poly(int *original_poly, int length_poly, int *poly1, int *length_pol
         poly2[i] = original_poly[(pos2 + i) %length_poly];
 }
 
+int copy_poly(int *in, int *out, int len){
+    int i;
+    for (i = 0; i < len; i++)
+        out[i] = in[i];
+    return len;
+}
+
 void print_poly(int *poly, int length_poly){
     int i;
     printf("(%d)", length_poly);
@@ -127,8 +134,8 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
             poly[ind_poly] = triangles[3 * i + 2];
             ind_poly++;
 
-            initial_point = 3 * i + 1;
-            end_point = 3 * i + 0;
+            initial_point = triangles[3 * i + 1];
+            end_point = triangles[3 * i + 0];
 
         } else if (t2 == NO_ADJ && t0 == NO_ADJ) {
 
@@ -137,8 +144,8 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
             poly[ind_poly] = triangles[3 * i + 1];
             ind_poly++;
 
-            initial_point = 3 * i + 0;
-            end_point = 3 * i + 2;
+            initial_point = triangles[3 * i + 0];
+            end_point = triangles[3 * i + 2];
 
         } else if (t1 == NO_ADJ && t2 == NO_ADJ) {
             poly[ind_poly] = triangles[3 * i + 2];
@@ -146,8 +153,8 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
             poly[ind_poly] = triangles[3 * i + 0];
             ind_poly++;
 
-            end_point = 3 * i + 1;
-            initial_point = 3 * i + 2;
+            end_point = triangles[3 * i + 1];
+            initial_point = triangles[3 * i + 2];
         } else {
             fprintf(stderr, "** ERROR ** Choosing initial point and endpoint\n");
         }
@@ -190,7 +197,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 2];
                         ind_poly++;
 
-                        end_point = 3 * k + 0;
+                        end_point = triangles[3 * k + 0];
 
                     } else if (continuous == 0) {
                         poly[ind_poly] = triangles[3 * k + 0];
@@ -198,7 +205,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 2];
                         ind_poly++;
 
-                        end_point = 3 * k + 1;
+                        end_point = triangles[3 * k + 1];
                     }
                 } else if (t2 == NO_ADJ && t0 == NO_ADJ) {
                     /*si endpoint es continua a t2  y t2-t0 son fe*/
@@ -208,7 +215,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 1];
                         ind_poly++;
 
-                        end_point = 3 * k + 2;
+                        end_point = triangles[3 * k + 2];
 
                     } else if (continuous == 2) {
                         poly[ind_poly] = triangles[3 * k + 2];
@@ -216,7 +223,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 1];
                         ind_poly++;
 
-                        end_point = 3 * k + 0;
+                        end_point = triangles[3 * k + 0];
 
                     }
                 } else if (t1 == NO_ADJ && t2 == NO_ADJ) {
@@ -227,7 +234,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 0];
                         ind_poly++;
 
-                        end_point = 3 * k + 1;
+                        end_point = triangles[3 * k + 1];
 
                     } else if (continuous == 1) {
                         poly[ind_poly] = triangles[3 * k + 1];
@@ -235,7 +242,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 0];
                         ind_poly++;
 
-                        end_point = 3 * k + 2;
+                        end_point = triangles[3 * k + 2];
 
                     }
                 } else {
@@ -256,13 +263,13 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 1];
                         ind_poly++;
 
-                        end_point = 3 * k + 2;
+                        end_point = triangles[3 * k + 2];
 
                     } else if (continuous == 2) {
                         poly[ind_poly] = triangles[3 * k + 2];
                         ind_poly++;
 
-                        end_point = 3 * k + 1;
+                        end_point = triangles[3 * k + 1];
 
                     }
                 } else if (t2 == NO_ADJ) {
@@ -271,13 +278,13 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 0];
                         ind_poly++;
 
-                        end_point = 3 * k + 1;
+                        end_point = triangles[3 * k + 1];
 
                     } else if (continuous == 1) {
                         poly[ind_poly] = triangles[3 * k + 1];
                         ind_poly++;
 
-                        end_point = 3 * k + 0;
+                        end_point = triangles[3 * k + 0];
 
                     }
                 } else if (t1 == NO_ADJ) {
@@ -286,13 +293,13 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
                         poly[ind_poly] = triangles[3 * k + 2];
                         ind_poly++;
 
-                        end_point = 3 * k + 0;
+                        end_point = triangles[3 * k + 0];
 
                     } else if (continuous == 0) {
                         poly[ind_poly] = triangles[3 * k + 0];
                         ind_poly++;
 
-                        end_point = 3 * k + 2;
+                        end_point = triangles[3 * k + 2];
 
                     }
                 } else {
