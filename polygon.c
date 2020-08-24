@@ -10,16 +10,21 @@
 
 void split_poly(int *original_poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int e1, int e2){
     int pos1, pos2,i;
-    for(i =0; i< length_poly; i++){
-        if(original_poly[i] == e1)
+    for(i =0; i< length_poly; i++)
+        if(original_poly[i] == e1 || original_poly[i] == e2){
             pos1 = i;
-        if(original_poly[i] == e2)
+            break;
+        }
+    for(i =pos1 + 1; i< length_poly; i++)
+        if(original_poly[i] == e1  || original_poly[i] == e2){
             pos2 = i;
-    }
+            break;
+        }
+
     printf("pos1: %d, pos2: %d \n", pos1, pos2);
     
     *length_poly1 = abs(pos1-pos2) +1;
-    *length_poly2 = length_poly - *length_poly1+1;
+    *length_poly2 = length_poly - *length_poly1 +2;
 
     for (i = 0; i < *length_poly1 ; i++)
         poly1[i] = original_poly[(pos1 + i) %length_poly];
@@ -46,14 +51,15 @@ void print_poly(int *poly, int length_poly){
 double get_area_poly(int *poly, int length_poly, double *r){
     double area = 0.0;
     double x1,y1,x2,y2;
-    int i;
-    for (i = 0; i < length_poly-1; i++)
+    int i,j;
+    for (i = 0; i < length_poly; i++)
     {
+        j = (i+1) %length_poly;
         x1=r[2*poly[i] + 0];
         y1=r[2*poly[i] + 1];
-        x2=r[2*poly[i+1] + 0];
-        y2=r[2*poly[i+1] + 1];
-        area += (x1*y2 - y1*x2);
+        x2=r[2*poly[j] + 0];
+        y2=r[2*poly[j] + 1];
+        area += (x1 + x2)*(y2 - y1);
     }
     return fabs(area/2);
 }

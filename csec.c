@@ -35,6 +35,7 @@ SE HA CAMBIADO EL INPUT, qdelaunay cambia de i a Fv
 
 
 
+
 int main(int argc, char **argv)
 {
 	int pnumber;
@@ -147,9 +148,9 @@ int main(int argc, char **argv)
 			if( num_BE > 0){
 				
 				double A_poly = get_area_poly(poly, length_poly,r);
-				double opt = A_poly/num_BE;
+				double opt = A_poly/(num_BE+1);
 
-				printf("A: %.2lf ", A_poly);
+				printf("A: %.2lf, opt = %.2lf, numBE = %d\n", A_poly, opt, num_BE);
 				print_poly(poly, length_poly);
 				int v_be = get_vertex_BarrierEdge(poly, length_poly);
 				int t = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
@@ -160,36 +161,43 @@ int main(int argc, char **argv)
 				split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
 				print_poly(poly1, length_poly1);
 				print_poly(poly2, length_poly2);
+
 				double A1 =get_area_poly(poly1, length_poly1,r);
 				double A2 = get_area_poly(poly2, length_poly2,r);
-				printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf\n", A1 , A2, A1 + A2);
-				double r_prev = fabs(fminf(A1, A2) - opt);
 				
-				double r_act;
-				int aux, origin = t;
+				double r_prev = fabs(fmin(A1, A2) - opt);
+				double r_act = 0.0;
+				printf("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
+				
+				int aux, origen = t;
+				printf("\n");
 				while (1){
 					aux = t;
-					t = get_adjacent_triangle_share_endpoint(t, origin, v_be, triangles, adj);
-					v_other = search_next_vertex_to_split(t, v_be, origin, triangles, adj);
-					origin = aux;
+					t = get_adjacent_triangle_share_endpoint(t, origen, v_be, triangles, adj);
+					origen = aux;
+					v_other = search_next_vertex_to_split(t, v_be, origen, triangles, adj);
+					
 
 					printf("%d-%d ",v_be, v_other);
-					printf("%d\n",t);
+					printf(" | nuevo t = %d | origen = %d\n",t, origen);
 
 					split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
 					print_poly(poly1, length_poly1);
 					print_poly(poly2, length_poly2);
 					A1 =get_area_poly(poly1, length_poly1,r);
 					A2 = get_area_poly(poly2, length_poly2,r);
-					printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf\n", A1 , A2, A1 + A2);
-					r_act = fabs(fminf(A1, A2) - opt);
-					if (r_act < r_prev)
+					
+					r_act = fabs(fmin(A1, A2) - opt);
+					printf("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
+					if (r_act <= r_prev)
 						r_prev = r_act;
 					else{
-						v_other = search_prev_vertex_to_split(t, v_be, origin, triangles, adj);
+						printf("SALI!!!!\n");
+						v_other = search_prev_vertex_to_split(t, v_be, origen, triangles, adj);
 						split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
 						break;
 					}
+					printf("\n\n");
 				}
 				printf("%d-%d ",v_be, v_other);
 				printf("%d\n",t);
@@ -197,7 +205,7 @@ int main(int argc, char **argv)
 				print_poly(poly2, length_poly2);
 				A1 =get_area_poly(poly1, length_poly1,r);
 				A2 = get_area_poly(poly2, length_poly2,r);
-				printf("A1: %.2lf, A2:  %.2lf, A1 + A2 = %.2lf\n", A1 , A2, A1 + A2);
+				printf("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
 				return 0;
 			}
 

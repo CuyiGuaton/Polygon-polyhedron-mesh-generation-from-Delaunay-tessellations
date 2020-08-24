@@ -467,10 +467,12 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	a1 = adj[3*i + 1];
 	a2 = adj[3*i + 2];
 
+	printf("origen %d, actual %d \n", origen,i);
 	if(a0 != NO_ADJ && t1 == v && origen != a0)
 			return t2;
-	else  if(a0 != NO_ADJ && t2 == v && origen != a0)
-			return t1;
+	else  if(a0 != NO_ADJ && t2 == v && origen != a0){
+			return t1;		
+	}
 	else  if(a1 != NO_ADJ && t0 == v && origen != a1)
 			return t2;
 	else  if(a1 != NO_ADJ && t2 == v && origen != a1)
@@ -479,20 +481,7 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 			return t1;
 	else  if(a2 != NO_ADJ && t1 == v && origen != a2)
 			return t0;
-/*
-	if(adj[3*i+0] != NO_ADJ && triangles[3*i +1] == v && origen != adj[3*i+0])
-		return triangles[3*i +2];
-	else if(adj[3*i+0] != NO_ADJ && triangles[3*i +2] == v && origen != adj[3*i+0])
-		return triangles[3*i +1];
-	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +0] == v && origen != adj[3*i+1])
-		return triangles[3*i +2];
-	else if(adj[3*i+1] != NO_ADJ && triangles[3*i +2] == v && origen != adj[3*i+1])
-		return triangles[3*i +0];
-	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +0] == v && origen != adj[3*i+2])
-		return triangles[3*i +1];
-	else if(adj[3*i+2] != NO_ADJ && triangles[3*i +1] == v && origen != adj[3*i+2])
-		return triangles[3*i +0];
-*/
+
 	return -1;
 }
 

@@ -1,4 +1,4 @@
-CFLAGS = -Wall -lm -ansi 
+CFLAGS = -Wall -lm -std=gnu99
 
 SRC= $(wildcard *.c)
 
