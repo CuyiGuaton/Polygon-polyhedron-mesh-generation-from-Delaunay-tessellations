@@ -116,10 +116,10 @@ int main(int argc, char **argv)
 
 	
 	/* Se crean los poligonos */
-	int adj_counter = 0;
+	
 	int length_poly = 0;
 	int i_mesh = 0;
-	
+	int num_fe;
 	int *poly = (int *)malloc(tnumber*sizeof(int));
 
 	int *pos_poly = (int *)malloc(tnumber*sizeof(int));
@@ -132,41 +132,20 @@ int main(int argc, char **argv)
 	for(i = 0; i < tnumber; i++)
 	{
 		/*busca fronter edge en un triangulo, hacer función está wea*/
-		adj_counter = 0;
-		for(j = 0; j < 3; j++){ 
-			if(adj[3*i + j] == NO_ADJ){
-				adj_counter++;
-			}
-		}
+		num_fe = count_FrontierEdges(i, adj);
 
-		/* si tiene froint edge y no ha sido visitado*/
-		if(adj_counter >= 2 && !visited[i]){ 
+		/* si tiene 2-3 froint edge y no ha sido visitado*/
+		if(num_fe >= 2 && !visited[i]){ 
 
-			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, adj_counter);
-
+			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
+			
 			i_mesh = save_to_mesh(mesh, poly, i_mesh, length_poly);
-
-	
 			pos_poly[id_pos_poly] = i_mesh;
 			id_pos_poly++;
 		}
 
 	}
-
-/*	
-	printf("\n(%d) ", i_mesh);
-	for (i = 0; i < i_mesh; i++)
-	{
-		printf("%d ", triangles[mesh[i]]);
-	}
-	printf("\n(%d) ", id_pos_poly);
-	for (i = 0; i < id_pos_poly; i++)
-	{
-		printf("%d ", pos_poly[i]);
-	}
-	printf("\npase\n");
-*/
-
+	
 	for (i = 0; i < tnumber; i++)
 	{
 		if(visited[i] == FALSE){

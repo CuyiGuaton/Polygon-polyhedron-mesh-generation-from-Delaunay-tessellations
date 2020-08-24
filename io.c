@@ -387,7 +387,7 @@ void write_geomview(double *r, int *p,  int pnumber,
 	for(j = 0,i = 0; i< id_start_poly; i ++){
 		printf("%d ", start_polygon[i] - anterior);
 		for(; j <  start_polygon[i] ; j = j + 1 ){
-				printf("%d ", p[polygon[j]]);
+				printf("%d ", polygon[j]);
 				
 		}
 
