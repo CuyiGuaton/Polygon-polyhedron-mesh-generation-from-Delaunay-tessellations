@@ -139,14 +139,13 @@ int main(int argc, char **argv)
 
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			
-			i_mesh = save_to_mesh(mesh, poly, i_mesh, length_poly);
-			pos_poly[id_pos_poly] = i_mesh;
-			id_pos_poly++;
+			save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);
+			
 		}
 
 	}
 	
-	for (i = 0; i < tnumber; i++)
+	for (i = 0; i < tnumber; i++) 
 	{
 		if(visited[i] == FALSE){
 			printf("hmnito mira, el triangulo %d no se visito ", i);
