@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 	max = (int *)malloc(tnumber*sizeof(int));
 	visited = (int *)malloc(tnumber*sizeof(int));
 	
-	area = (double *)malloc(tnumber*sizeof(double));
+	
 	area_poly = (double *)malloc(tnumber*sizeof(double));
 	
 	
@@ -78,21 +78,13 @@ int main(int argc, char **argv)
 	int i;
 	int j;
 
-	double Ax, Ay, Bx, By, Cx, Cy;
+	
 	/* Inicializar arreglos adicionales. */
 	for(i = 0; i < tnumber; i++)
 	{
 		visited[i] = FALSE;
 		
-		/*Calcular el area */
-		area_poly[i] = 0;
-		Ax = r[triangles[3*i + 0]*2 + 0];
-		Ay = r[triangles[3*i + 0]*2 + 1];
-		Bx = r[triangles[3*i + 1]*2 + 0];
-		By = r[triangles[3*i + 1]*2 + 1];
-		Cx = r[triangles[3*i + 2]*2 + 0];
-		Cy = r[triangles[3*i + 2]*2 + 1];
-		area[i] = abs((Ax*(By - Cy) + Bx*(Cy - Ay) + Cx*(Ay - By))/2);
+	
 	}
 	
 	/* Etapa 1: Encontrar aristas máximas. */
@@ -132,8 +124,8 @@ int main(int argc, char **argv)
 	int *poly1 = (int *)malloc(tnumber*sizeof(int));
 	int *poly2 = (int *)malloc(tnumber*sizeof(int));
 	int length_poly = 0;
-	int length_poly1 = 0;
-	int length_poly2 = 0;
+	int length_poly1;
+	int length_poly2;
 	for(i = 0; i < tnumber; i++)
 	{
 		/*busca fronter edge en un triangulo, hacer función está wea*/
@@ -146,66 +138,9 @@ int main(int argc, char **argv)
 			
 			int num_BE = count_BarrierEdges(poly, length_poly);
 			if( num_BE > 0){
-				
-				double A_poly = get_area_poly(poly, length_poly,r);
-				double opt = A_poly/(num_BE+1);
-
-				printf("A: %.2lf, opt = %.2lf, numBE = %d\n", A_poly, opt, num_BE);
-				print_poly(poly, length_poly);
-				int v_be = get_vertex_BarrierEdge(poly, length_poly);
-				int t = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
-				int v_other = search_next_vertex_to_split(t, v_be, -2, triangles, adj);
-				printf("%d-%d ",v_be, v_other);
-				printf("%d\n",t);
-
-				split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
+				remove_BarrierEdge_from_polygon(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
 				print_poly(poly1, length_poly1);
-				print_poly(poly2, length_poly2);
-
-				double A1 =get_area_poly(poly1, length_poly1,r);
-				double A2 = get_area_poly(poly2, length_poly2,r);
-				
-				double r_prev = fabs(fmin(A1, A2) - opt);
-				double r_act = 0.0;
-				printf("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
-				
-				int aux, origen = t;
-				printf("\n");
-				while (1){
-					aux = t;
-					t = get_adjacent_triangle_share_endpoint(t, origen, v_be, triangles, adj);
-					origen = aux;
-					v_other = search_next_vertex_to_split(t, v_be, origen, triangles, adj);
-					
-
-					printf("%d-%d ",v_be, v_other);
-					printf(" | nuevo t = %d | origen = %d\n",t, origen);
-
-					split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
-					print_poly(poly1, length_poly1);
-					print_poly(poly2, length_poly2);
-					A1 =get_area_poly(poly1, length_poly1,r);
-					A2 = get_area_poly(poly2, length_poly2,r);
-					
-					r_act = fabs(fmin(A1, A2) - opt);
-					printf("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
-					if (r_act <= r_prev)
-						r_prev = r_act;
-					else{
-						printf("SALI!!!!\n");
-						v_other = search_prev_vertex_to_split(t, v_be, origen, triangles, adj);
-						split_poly(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, v_be, v_other);
-						break;
-					}
-					printf("\n\n");
-				}
-				printf("%d-%d ",v_be, v_other);
-				printf("%d\n",t);
-				print_poly(poly1, length_poly1);
-				print_poly(poly2, length_poly2);
-				A1 =get_area_poly(poly1, length_poly1,r);
-				A2 = get_area_poly(poly2, length_poly2,r);
-				printf("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
+        		print_poly(poly2, length_poly2);
 				return 0;
 			}
 
@@ -232,7 +167,7 @@ int main(int argc, char **argv)
 	free(adj);
 	free(max );
 	free(visited );
-	free(area);
+
 	free(area_poly);
 	free(mesh );
 	free(poly);

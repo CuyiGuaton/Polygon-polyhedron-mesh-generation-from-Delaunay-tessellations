@@ -6,7 +6,56 @@
 
 #include "consts.h"
 #include "triang.h"
+#include "polygon.h"
 
+void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int num_BE, int *triangles, int *adj, double *r, int tnumber){
+    double A_poly, A1, A2, opt, r_prev, r_act;
+    int v_be, t, v_other, aux, origen;
+
+    /*se calculca el valor optimo para el poligono */
+    A_poly = get_area_poly(poly, length_poly,r);
+    opt = A_poly/(num_BE+1);
+
+    /* se calcula el vertice a insertar en el polygono */
+    v_be = get_vertex_BarrierEdge(poly, length_poly);
+    t = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
+    v_other = search_next_vertex_to_split(t, v_be, -2, triangles, adj);
+
+    /* Se divide el polygono en dos */
+    split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
+
+    A1 =get_area_poly(poly1, *length_poly1,r);
+    A2 = get_area_poly(poly2, *length_poly2,r);
+
+    /* se calcula el r */
+    r_prev = fabs(fmin(A1, A2) - opt);
+    r_act = 0.0;
+
+    origen = t;
+    
+    while (1){
+        aux = t;
+        t = get_adjacent_triangle_share_endpoint(t, origen, v_be, triangles, adj);
+        origen = aux;
+        v_other = search_next_vertex_to_split(t, v_be, origen, triangles, adj);
+        
+        split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
+        A1 =get_area_poly(poly1, *length_poly1,r);
+        A2 = get_area_poly(poly2,*length_poly2,r);
+        
+        r_act = fabs(fmin(A1, A2) - opt);
+
+        if (r_act <= r_prev)
+            r_prev = r_act;
+        else{
+
+            v_other = search_prev_vertex_to_split(t, v_be, origen, triangles, adj);
+            split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
+            break;
+        }
+
+    }
+}
 
 void split_poly(int *original_poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int e1, int e2){
     int pos1, pos2,i;
@@ -21,7 +70,7 @@ void split_poly(int *original_poly, int length_poly, int *poly1, int *length_pol
             break;
         }
 
-    printf("pos1: %d, pos2: %d \n", pos1, pos2);
+    /*printf("pos1: %d, pos2: %d \n", pos1, pos2);*/
     
     *length_poly1 = abs(pos1-pos2) +1;
     *length_poly2 = length_poly - *length_poly1 +2;

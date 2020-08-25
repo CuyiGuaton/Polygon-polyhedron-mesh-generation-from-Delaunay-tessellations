@@ -467,7 +467,7 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	a1 = adj[3*i + 1];
 	a2 = adj[3*i + 2];
 
-	printf("origen %d, actual %d \n", origen,i);
+	/*printf("origen %d, actual %d \n", origen,i);*/
 	if(a0 != NO_ADJ && t1 == v && origen != a0)
 			return t2;
 	else  if(a0 != NO_ADJ && t2 == v && origen != a0){
