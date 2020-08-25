@@ -126,6 +126,8 @@ int main(int argc, char **argv)
 	int length_poly = 0;
 	int length_poly1;
 	int length_poly2;
+	int num_BE, num_BE_poly1, num_BE_poly2;
+
 	for(i = 0; i < tnumber; i++)
 	{
 		/*busca fronter edge en un triangulo, hacer función está wea*/
@@ -136,18 +138,33 @@ int main(int argc, char **argv)
 
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			
-			int num_BE = count_BarrierEdges(poly, length_poly);
+			num_BE = count_BarrierEdges(poly, length_poly);
 			if( num_BE > 0){
-				remove_BarrierEdge_from_polygon(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
-				print_poly(poly1, length_poly1);
-        		print_poly(poly2, length_poly2);
-				return 0;
-			}
+				do
+				{
+					print_poly(poly, length_poly);
+					remove_BarrierEdge_from_polygon(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
 
-			save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);
-			
+					num_BE_poly1 =count_BarrierEdges(poly1, length_poly1);
+					num_BE_poly2 = count_BarrierEdges(poly2, length_poly2);
+
+					if(num_BE_poly1 > 0){
+						length_poly = copy_poly(poly, poly1, length_poly1);
+						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
+						num_BE = num_BE_poly1;
+					}else if(num_BE_poly2 > 0){
+						length_poly = copy_poly(poly, poly2, length_poly2);
+						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);		
+						num_BE = num_BE_poly2;
+					}else{
+						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);
+						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
+						num_BE = 0;
+					}
+				} while (num_BE != 0);
+			}else
+				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 		}
-
 	}
 	
 	for (i = 0; i < tnumber; i++) 

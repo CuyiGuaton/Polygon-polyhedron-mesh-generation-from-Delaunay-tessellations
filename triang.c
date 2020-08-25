@@ -470,9 +470,8 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	/*printf("origen %d, actual %d \n", origen,i);*/
 	if(a0 != NO_ADJ && t1 == v && origen != a0)
 			return t2;
-	else  if(a0 != NO_ADJ && t2 == v && origen != a0){
+	else  if(a0 != NO_ADJ && t2 == v && origen != a0)
 			return t1;		
-	}
 	else  if(a1 != NO_ADJ && t0 == v && origen != a1)
 			return t2;
 	else  if(a1 != NO_ADJ && t2 == v && origen != a1)
@@ -481,7 +480,6 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 			return t1;
 	else  if(a2 != NO_ADJ && t1 == v && origen != a2)
 			return t0;
-
 	return -1;
 }
 
