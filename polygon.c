@@ -229,7 +229,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
         continuous = is_continuous(k, end_point, triangles);
         origen = aux;
         /*fprintf(stderr,"k %d origen %d, conti %d\n", k, origen, continuous);*/
-        while (triangles[initial_point] != triangles[end_point]) {
+        while (initial_point != end_point) {
 
             /*se marca el triangulo visto como visitado y se suma al area del poligono */
             

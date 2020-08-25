@@ -138,32 +138,48 @@ int main(int argc, char **argv)
 
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			
+			save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+			
 			num_BE = count_BarrierEdges(poly, length_poly);
+
+
+			print_poly(poly, length_poly);
 			if( num_BE > 0){
 				do
 				{
 					print_poly(poly, length_poly);
 					remove_BarrierEdge_from_polygon(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
-
+					
+					print_poly(poly1, length_poly1);
+					print_poly(poly2, length_poly2);
+					
 					num_BE_poly1 =count_BarrierEdges(poly1, length_poly1);
 					num_BE_poly2 = count_BarrierEdges(poly2, length_poly2);
-
+					printf("tula\n");
 					if(num_BE_poly1 > 0){
+						printf("tula2\n");
 						length_poly = copy_poly(poly, poly1, length_poly1);
 						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
 						num_BE = num_BE_poly1;
+						printf("tula3 %d\n", num_BE_poly1);
 					}else if(num_BE_poly2 > 0){
+						printf("tula4\n");
 						length_poly = copy_poly(poly, poly2, length_poly2);
 						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);		
 						num_BE = num_BE_poly2;
+						printf("tula5\n");
 					}else{
+						printf("tula6\n");
 						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);
 						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
 						num_BE = 0;
+						printf("tula7\n");
 					}
 				} while (num_BE != 0);
-			}else
+			}else{
 				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+			}
+			
 		}
 	}
 	
@@ -175,9 +191,9 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	/*
+	
 	write_geomview(r,triangles, pnumber, tnumber,i_mesh, mesh, id_pos_poly, pos_poly);
-*/
+
 
 	free(r);
 	free(triangles);
