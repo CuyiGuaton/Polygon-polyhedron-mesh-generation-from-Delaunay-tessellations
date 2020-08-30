@@ -1,3 +1,10 @@
+/*
+caso raro
+num_be 7
+
+(75) z01 1502 387 240 3507 4893 4976 3647 3669 8684 1550 8684 3667 5131 141 7845 9935 7396 4376 7396 7777 773 3359 773 7404 20 7571 4259 7958 6875 7958 4259 4518 7815 3906 4335 2957 2122 2163 2122 1863 7343 6997 5531 5343 1949 6401 6342 9810 5682 9889 8259 7904 5347 1091 5987 3761 2084 1833 2084 4040
+
+*/
 
 void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int num_BE, int *triangles, int *adj, double *r, int tnumber){
     double A_poly, A1, A2, opt, r_prev, r_act;

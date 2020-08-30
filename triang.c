@@ -6,6 +6,15 @@
 
 #include "consts.h"
 
+#ifdef DEBUG
+#define DEBUG_TEST 1
+#else
+#define DEBUG_TEST 0
+#endif
+
+#define debug_block(fmt) do { if (DEBUG_TEST){ fmt }} while (0)
+#define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
+#define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
 
 /* dist
@@ -357,17 +366,19 @@ int get_adjacent_triangle(int i, int k, int l, int *p, int *adj)
 }
 
 int is_continuous(int i, int endpoint, int *p ){
-	int p0 = p[3*i + 0];
-	int p1 = p[3*i + 1];
-	int p2 = p[3*i + 2];
-	int end = endpoint;
-
-	if(end == p0){
-		return  0; /* indica que está en p0*/
-	}else if (end == p1){
-		return  1;  /* indica que está en p1*/
-	}else if(end == p2){
-		return 2;  /* indica que está en p2*/
+	int p0, p1, p2;
+	if (i != -1){
+		p0 = p[3*i + 0];
+		p1 = p[3*i + 1];
+		p2 = p[3*i + 2];
+				
+		if(endpoint == p0){
+			return  0; /* indica que está en p0*/
+		}else if (endpoint == p1){
+			return  1;  /* indica que está en p1*/
+		}else if(endpoint == p2){
+			return 2;  /* indica que está en p2*/
+		}
 	}
 	return -1;
 }
@@ -392,7 +403,8 @@ int get_adjacent_triangle_share_endpoint(int i, int origen, int endpoint, int *p
 	int ic1 = is_continuous(i1 ,endpoint, p);
 	int ic2 = is_continuous(i2 ,endpoint, p);
 	
-	/*fprintf(stderr,"FUNCTION i0 ic0 %d %d   || i1 ic1 %d %d || i2 ic2 %d %d  \n", i0, ic0, i1,ic1,  i2,ic2);*/
+	//debug_print("FUNCTION i0 ic0 %d %d   || i1 ic1 %d %d || i2 ic2 %d %d  \n", i0, ic0, i1,ic1,  i2,ic2);
+	debug_print("T %d endpoint %d | Triangles %d %d %d | ADJ  %d %d %d\n", i, endpoint, p[3*i + 0], p[3*i + 1], p[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
 	if(ic0 != -1 &&  i0 != origen && i0 != -1){ /*Si hay contuinidad y no retrocede al origen */
 		return i0;
 	}else if(ic1 != -1 && i1 != origen  && i1 != -1){
@@ -400,6 +412,8 @@ int get_adjacent_triangle_share_endpoint(int i, int origen, int endpoint, int *p
 	}else if(ic2 != -1 &&   i2 != origen  && i2 != -1){
 		return i2;
 	}
+	printf("Error in %s\n", __func__);
+    exit(0);
 	return -2;
 }
 
@@ -421,10 +435,12 @@ int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, int *adj,
 	for (i = 0; i < tnumber; i++)
 		for (j = 0; j < 3; j++)
 			if(triangles[3*i +j] == v  && ( adj[3*i + ((j + 1)%3)] == -1 || adj[3*i + ((j + 2)%3)] == -1 )){
-				/*printf("\n%d | Triangles %d %d %d | ADJ  %d %d %d\n", i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] ); */
+				debug_print("%d | Triangles %d %d %d | ADJ  %d %d %d\n", i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
 				return i;
 			}
 				
+	printf("Error in %s\n", __func__);
+    exit(0);
 	return -1;
 }
 
@@ -440,6 +456,8 @@ int search_prev_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	a1 = adj[3*i + 1];
 	a2 = adj[3*i + 2];
 
+	debug_print("origen %d, actual %d  | Triangles %d %d %d | ADJ  %d %d %d\n", origen,i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
+
 	if(t1 == v && origen == a0)
 			return t2;
 	else  if(t2 == v && origen == a0)
@@ -452,6 +470,9 @@ int search_prev_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 			return t1;
 	else  if(t1 == v && origen == a2)
 			return t0;	
+	
+	printf("Error in %s\n", __func__);
+    exit(0);
 	return -1;
 }
 
@@ -467,7 +488,8 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	a1 = adj[3*i + 1];
 	a2 = adj[3*i + 2];
 
-	/*printf("origen %d, actual %d \n", origen,i);*/
+	debug_print("origen %d, actual %d  | Triangles %d %d %d | ADJ  %d %d %d\n", origen,i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
+
 	if(a0 != NO_ADJ && t1 == v && origen != a0)
 			return t2;
 	else  if(a0 != NO_ADJ && t2 == v && origen != a0)
@@ -480,23 +502,8 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 			return t1;
 	else  if(a2 != NO_ADJ && t1 == v && origen != a2)
 			return t0;
+
+	printf("Error in %s\n", __func__);
+    exit(0);
 	return -1;
 }
-
-/*
-7 | Triangles 34 19 49 | ADJ  10 8 -1
-
-8 | Triangles 34 97 49 | ADJ  70 7 -1
-
-10 | Triangles 84 19 49 | ADJ  7 33 11
-
-32 | Triangles 32 88 49 | ADJ  71 -1 -1
-
-33 | Triangles 32 84 49 | ADJ  10 -1 -1
-
-70 | Triangles 82 97 49 | ADJ  8 71 -1
-
-71 | Triangles 82 88 49 | ADJ  32 70 -1
-
-
-*/

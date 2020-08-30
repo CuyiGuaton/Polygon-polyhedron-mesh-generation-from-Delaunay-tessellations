@@ -1,10 +1,3 @@
-/*falta:
-
-- optimizar memoria
-- generar funciones y ponerlas en otro archivo
-- optimizar  eliminación de barrier edges
-*/
-
 /* Programa principal para O(n) secuencial. 
 
 Conjunto de puntos aleatorios:
@@ -19,7 +12,13 @@ make && ./uwu guitar 1 dat > a.off && geomview a.off
 
 SE HA CAMBIADO EL INPUT, qdelaunay cambia de i a Fv
 
+DEBUG
+
+rbox 100 D2 z > data.dat && make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat
 */
+
+
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,10 +33,23 @@ SE HA CAMBIADO EL INPUT, qdelaunay cambia de i a Fv
 #include <time.h>
 
 
+#ifdef DEBUG
+#define DEBUG_TEST 1
+#else
+#define DEBUG_TEST 0
+#endif
 
+#define debug_block(fmt) do { if (DEBUG_TEST){ fmt }} while (0)
+
+#define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
+
+#define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
 int main(int argc, char **argv)
 {
+
+	debug_msg("RUNNING DEBUG BUILD\n\n\n");
+
 	int pnumber;
 	int tnumber;
 	double *r;
@@ -136,44 +148,35 @@ int main(int argc, char **argv)
 		/* si tiene 2-3 froint edge y no ha sido visitado*/
 		if(num_fe >= 2 && !visited[i]){ 
 
+			debug_msg("Generando polinomio\n");
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
-			
-			save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
-			
 			num_BE = count_BarrierEdges(poly, length_poly);
-
-
-			print_poly(poly, length_poly);
+			debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
 			if( num_BE > 0){
 				do
-				{
-					print_poly(poly, length_poly);
+				{	
+					debug_print("Se encontraron %d BE\n", num_BE);
+					debug_msg("Poly to div: "); debug_block(print_poly(poly, length_poly); printf("\n"););
 					remove_BarrierEdge_from_polygon(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
-					
-					print_poly(poly1, length_poly1);
-					print_poly(poly2, length_poly2);
 					
 					num_BE_poly1 =count_BarrierEdges(poly1, length_poly1);
 					num_BE_poly2 = count_BarrierEdges(poly2, length_poly2);
-					printf("tula\n");
-					if(num_BE_poly1 > 0){
-						printf("tula2\n");
-						length_poly = copy_poly(poly, poly1, length_poly1);
+
+					debug_print("num_BE_poly1 %d, num_BE_poly2 %d\n", num_BE_poly1, num_BE_poly2);
+
+					if(num_BE_poly1 > 0){						
+						length_poly = copy_poly(poly1, poly, length_poly1);
 						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
 						num_BE = num_BE_poly1;
-						printf("tula3 %d\n", num_BE_poly1);
+
 					}else if(num_BE_poly2 > 0){
-						printf("tula4\n");
-						length_poly = copy_poly(poly, poly2, length_poly2);
+						length_poly = copy_poly(poly2, poly, length_poly2);
 						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);		
 						num_BE = num_BE_poly2;
-						printf("tula5\n");
 					}else{
-						printf("tula6\n");
 						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);
 						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
 						num_BE = 0;
-						printf("tula7\n");
 					}
 				} while (num_BE != 0);
 			}else{

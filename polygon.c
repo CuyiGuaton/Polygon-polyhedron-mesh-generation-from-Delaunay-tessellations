@@ -8,9 +8,19 @@
 #include "triang.h"
 #include "polygon.h"
 
+#ifdef DEBUG
+#define DEBUG_TEST 1
+#else
+#define DEBUG_TEST 0
+#endif
+
+#define debug_block(fmt) do { if (DEBUG_TEST){ fmt }} while (0)
+#define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
+#define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
+
+
 /* Dado un poly con barrier edges
 Optimiza la división de este y devuelve poly1 y poly2*/
-
 void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int num_BE, int *triangles, int *adj, double *r, int tnumber){
     double A_poly, A1, A2, opt, r_prev, r_act;
     int v_be, t, v_other, aux, origen;
@@ -19,45 +29,85 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
     A_poly = get_area_poly(poly, length_poly,r);
     opt = A_poly/(num_BE+1);
 
+    debug_print("Area poly: %.2lf, opt = %.2lf\n", A_poly, opt);
+
     /* se calcula el vertice a insertar en el polygono */
     v_be = get_vertex_BarrierEdge(poly, length_poly);
     t = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
     v_other = search_next_vertex_to_split(t, v_be, -2, triangles, adj);
 
+    debug_print("Agregar edge %d - %d del Triangulo %d \n", v_be, v_other,t);
+    
+    if(v_other == -1 || v_other == -2){
+        printf("No se puede agregar el edge %d - %d del Triangulo %d\n", v_be, v_other, t);
+        exit(0);
+    }
+
+    debug_msg("Dividiendo poligono\n");
     /* Se divide el polygono en dos */
     split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
 
-    /* se calcula la dist con la solución optima */
+    debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
+	debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
+
+
     A1 =get_area_poly(poly1, *length_poly1,r);
     A2 = get_area_poly(poly2, *length_poly2,r);
+
+    /* se calcula el r */
     r_prev = fabs(fmin(A1, A2) - opt);
     r_act = 0.0;
 
+    debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
     origen = t;
-    /*se repite el proceso*/
     while (1){
-        /* se avanza al siguiente triangulo para dividir */
+        
         aux = t;
         t = get_adjacent_triangle_share_endpoint(t, origen, v_be, triangles, adj);
         origen = aux;
-        /*se elige la arista opuesta al triangulo anterior que comparta el vertice del be */
         v_other = search_next_vertex_to_split(t, v_be, origen, triangles, adj);
         
+
+        debug_print("Agregar edge %d - %d del nuevo triangulo %d | origen = %d \n", v_be, v_other,t, origen); 
+        
+        if(v_other == -1 || v_other == -2){
+            printf("No se puede agregar el edge %d - %d del Triangulo %d\n", v_be, v_other, t);
+            exit(0);
+        }
+
+        debug_msg("Dividiendo poligono de nuevo\n");
+
         split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
         A1 =get_area_poly(poly1, *length_poly1,r);
         A2 = get_area_poly(poly2,*length_poly2,r);
-
+        debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
+	    debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
+        
         r_act = fabs(fmin(A1, A2) - opt);
-        if (r_act <= r_prev) /* si sigue disminuyendo la dist con la solución opt */
+        debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
+  
+        if (r_act <= r_prev)
             r_prev = r_act;
-        else{ 
-            /*se elige la arista anterior para divir el poly*/
+        else{
+            debug_print("Se encontro la optimización con r_act %.2lf", r_act);
             v_other = search_prev_vertex_to_split(t, v_be, origen, triangles, adj);
+            debug_print("Agregar edge %d - %d del nuevo triangulo %d | origen = %d \n", v_be, v_other,t, origen);
             split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
+            debug_msg("Poligonos generados\n");
+			debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
+			debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
+            debug_block(
+            A1 =get_area_poly(poly1, *length_poly1,r);
+            A2 = get_area_poly(poly2,*length_poly2,r););
+            debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
+            debug_msg("División optima terminada\n");
             break;
         }
+        
     }
+    
 }
+
 
 /* Divide un poly dado un vertice e1-e2
     resultados poly1 y poly*/
@@ -75,7 +125,7 @@ void split_poly(int *original_poly, int length_poly, int *poly1, int *length_pol
             break;
         }
 
-    /*printf("pos1: %d, pos2: %d \n", pos1, pos2);*/
+    debug_print("Divide pos1: %d, pos2: %d \n", pos1, pos2);
     
     *length_poly1 = abs(pos1-pos2) +1;
     *length_poly2 = length_poly - *length_poly1 +2;
@@ -98,8 +148,7 @@ void print_poly(int *poly, int length_poly){
     int i;
     printf("(%d)", length_poly);
     for (i = 0; i < length_poly; i++)
-        printf(" %d", poly[i]);
-    printf("\n");
+        printf(" %d", poly[i]);   
 }
 
 double get_area_poly(int *poly, int length_poly, double *r){
@@ -119,11 +168,10 @@ double get_area_poly(int *poly, int length_poly, double *r){
 }
 
 
-
 void save_to_mesh(int *mesh, int *poly, int *i_mesh, int length_poly, int *pos_poly, int *id_pos_poly){
+    
     int i;
-    for (i = 0; i < length_poly; i++){
-        
+    for (i = 0; i < length_poly; i++){        
         mesh[*i_mesh + i] = poly[i];
     }
     *i_mesh += length_poly;
@@ -154,6 +202,9 @@ int get_vertex_BarrierEdge(int *poly, int length_poly){
         if (poly[x] == poly[y])
             return poly[(i+1) %length_poly];
     }
+    printf("num_BE %d\n", count_BarrierEdges(poly, length_poly));
+    printf("%s:%d:%s(): No se encontro vertice BarrierEdge\n",__FILE__,  __LINE__, __func__);
+    exit(0);
     return -1;
 }
 
