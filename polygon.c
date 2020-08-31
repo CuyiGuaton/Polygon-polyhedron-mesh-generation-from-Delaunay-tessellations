@@ -108,23 +108,19 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
 
         debug_print("Agregar edge %d - %d del nuevo triangulo %d | origen = %d \n", v_be, v_other,t, origen); 
         
-        if(v_other == -1 || v_other == -2){
-            printf("No se puede agregar el edge %d - %d del Triangulo %d\n", v_be, v_other, t);
-            exit(0);
+        if(v_other != -2){
+            debug_msg("Dividiendo poligono de nuevo\n");
+
+            split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
+            A1 =get_area_poly(poly1, *length_poly1,r);
+            A2 = get_area_poly(poly2,*length_poly2,r);
+            debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
+            debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
+            
+            r_act = fabs(fmin(A1, A2) - opt);
+            debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
         }
-
-        debug_msg("Dividiendo poligono de nuevo\n");
-
-        split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
-        A1 =get_area_poly(poly1, *length_poly1,r);
-        A2 = get_area_poly(poly2,*length_poly2,r);
-        debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
-	    debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
-        
-        r_act = fabs(fmin(A1, A2) - opt);
-        debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
-  
-        if (r_act <= r_prev){
+        if (r_act <= r_prev && v_other != -2){
             r_prev = r_act;
             debug_msg("Solución optima no encontrada, repitiendo\n");
         }
@@ -259,7 +255,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
 	int t1;	
 	int t2;
 	int continuous;
-	int k, j, aux;
+	int k, aux;
 	int origen;
     /*si tiene 3 se agregan y se corta el ciclo*/
     if (adj_counter == 3) {

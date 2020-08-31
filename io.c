@@ -22,8 +22,7 @@
 
 /*read files*/
 /*Lee tres archivos, uno de nodes, otro de triangulos y otro de t adj*/
-void read_fromfiles_data(char *ppath, double **r, int **p, int **adj,
-													double **a, int *pnumber, int *tnumber, void **align_settings)
+void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumber, int *tnumber, void **align_settings)
 {
 	
 	int i;
@@ -220,8 +219,7 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj,
  * toma el tamaño de la memoria a reservar y retorna un entero.
  * */
 
-void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj,
-													double **a, int *pnumber, int *tnumber, void **align_settings)
+void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj, int *pnumber, int *tnumber, void **align_settings)
 {
 	FILE *qdp;
 	
@@ -307,29 +305,6 @@ void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj,
 	/* Ignorar línea */
 	fscanf(qdp, "%*[^\n]\n");
 	
-	if(a != NULL)
-	{
-		if(align_settings == NULL)
-		{
-			*a = (double *)malloc((*tnumber)*sizeof(double));
-		}
-		else
-		{
-			posix_memalign((void **)a, alignment, new_aligned_mem_size((*tnumber)*sizeof(double)));
-		}
-	}
-	
-	/* Leer áreas de cada triángulo y verterlas en arreglo. */
-	for(i = 0; i < *tnumber; i++)
-	{
-		fscanf(qdp, "%lf\n", &tmp_dbl0);
-		
-		if(a != NULL)
-		{
-			/* Inicializar campos. */
-			(*a)[i] = tmp_dbl0;
-		}
-	}
 	
 	/* Pudiera quedar algo por leer, pero no interesa. */
 	while(fscanf(qdp, "%*[^\n]\n") > 0)

@@ -56,7 +56,6 @@ int main(int argc, char **argv)
 	int *triangles;
 	int *adj;
 
-	double *area;
 	double *area_poly;
 
 	char *ppath;
@@ -72,9 +71,9 @@ int main(int argc, char **argv)
 	/* print_timestamp("Ejecutando qdelaunay...\n", t); */
 	
 	if(threshold == 1)
-		read_fromfiles_data(ppath, &r, &triangles, &adj, &area, &pnumber, &tnumber, NULL);
+		read_fromfiles_data(ppath, &r, &triangles, &adj, &pnumber, &tnumber, NULL);
 	else
-		read_qdelaunay_data(ppath, &r, &triangles, &adj, &area, &pnumber, &tnumber, NULL);
+		read_qdelaunay_data(ppath, &r, &triangles, &adj, &pnumber, &tnumber, NULL);
 	
 
 	int *max;
@@ -84,8 +83,6 @@ int main(int argc, char **argv)
 	
 	
 	area_poly = (double *)malloc(tnumber*sizeof(double));
-	
-	
 
 	int i;
 	int j;

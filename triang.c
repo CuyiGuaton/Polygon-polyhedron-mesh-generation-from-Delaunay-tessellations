@@ -413,8 +413,6 @@ int get_adjacent_triangle_share_endpoint(int i, int origen, int endpoint, int *p
 	}else if(ic2 != -1 &&   i2 != origen  && i2 != -1){
 		return i2;
 	}
-	printf("Error in %s\n", __func__);
-    exit(0);
 	return -2;
 }
 
@@ -490,7 +488,7 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	a1 = adj[3*i + 1];
 	a2 = adj[3*i + 2];
 
-	debug_print("origen %d, actual %d  | Triangles %d %d %d | ADJ  %d %d %d\n", origen,i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2]);
+	debug_print("v %d origen %d, actual %d  | Triangles %d %d %d | ADJ  %d %d %d\n", v, origen,i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2]);
 
 	if(a0 != NO_ADJ && t1 == v && origen != a0)
 			return t2;
@@ -504,6 +502,12 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 			return t1;
 	else if(a2 != NO_ADJ && t1 == v && origen != a2)
 			return t0;
+
+	/*caso particular en poligonos grandes, ya no hay más triangulos para avanzar */
+	if(get_adjacent_triangle_share_endpoint(i, origen, v, triangles, adj) == -2){
+		debug_msg("No se encuentran más triangulos para avanzar\n");
+		return -2;
+	}
 
 	printf("Error in %s\n", __func__);
     exit(0);
