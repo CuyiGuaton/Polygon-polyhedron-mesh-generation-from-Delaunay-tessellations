@@ -133,12 +133,8 @@ int main(int argc, char **argv)
 	int *mesh;
 	mesh = (int *)malloc(3*tnumber*sizeof(int));
 
-	int *poly1 = (int *)malloc(tnumber*sizeof(int));
-	int *poly2 = (int *)malloc(tnumber*sizeof(int));
 	int length_poly = 0;
-	int length_poly1;
-	int length_poly2;
-	int num_BE, num_BE_poly1, num_BE_poly2;
+	int num_BE;
 
 	for(i = 0; i < tnumber; i++)
 	{
@@ -151,35 +147,13 @@ int main(int argc, char **argv)
 			debug_msg("Generando polinomio\n");
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			num_BE = count_BarrierEdges(poly, length_poly);
+
 			debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
 			if( num_BE > 0){
-				do
-				{	
-					debug_print("Se encontraron %d BE\n", num_BE);
-					debug_msg("Poly to div: "); debug_block(print_poly(poly, length_poly); printf("\n"););
-					remove_BarrierEdge_from_polygon(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
-					
-					num_BE_poly1 =count_BarrierEdges(poly1, length_poly1);
-					num_BE_poly2 = count_BarrierEdges(poly2, length_poly2);
-
-					debug_print("num_BE_poly1 %d, num_BE_poly2 %d\n", num_BE_poly1, num_BE_poly2);
-
-					if(num_BE_poly1 > 0){						
-						length_poly = copy_poly(poly1, poly, length_poly1);
-						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
-						num_BE = num_BE_poly1;
-
-					}else if(num_BE_poly2 > 0){
-						length_poly = copy_poly(poly2, poly, length_poly2);
-						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);		
-						num_BE = num_BE_poly2;
-					}else{
-						save_to_mesh(mesh, poly1, &i_mesh, length_poly1, pos_poly, &id_pos_poly);
-						save_to_mesh(mesh, poly2, &i_mesh, length_poly2, pos_poly, &id_pos_poly);
-						num_BE = 0;
-					}
-				} while (num_BE != 0);
+				debug_print("Se dectecto %d BE\n", num_BE);
+				remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly);
 			}else{
+				debug_msg("Guardando poly\n");
 				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 			}
 			

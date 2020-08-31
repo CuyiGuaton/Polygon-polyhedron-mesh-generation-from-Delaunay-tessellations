@@ -365,6 +365,7 @@ int get_adjacent_triangle(int i, int k, int l, int *p, int *adj)
 	return index;
 }
 
+/*Indica si un triangulo contiene al punto endpoint*/
 int is_continuous(int i, int endpoint, int *p ){
 	int p0, p1, p2;
 	if (i != -1){
@@ -404,7 +405,7 @@ int get_adjacent_triangle_share_endpoint(int i, int origen, int endpoint, int *p
 	int ic2 = is_continuous(i2 ,endpoint, p);
 	
 	//debug_print("FUNCTION i0 ic0 %d %d   || i1 ic1 %d %d || i2 ic2 %d %d  \n", i0, ic0, i1,ic1,  i2,ic2);
-	debug_print("T %d endpoint %d | Triangles %d %d %d | ADJ  %d %d %d\n", i, endpoint, p[3*i + 0], p[3*i + 1], p[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
+	//debug_print("T %d endpoint %d | Triangles %d %d %d | ADJ  %d %d %d\n", i, endpoint, p[3*i + 0], p[3*i + 1], p[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
 	if(ic0 != -1 &&  i0 != origen && i0 != -1){ /*Si hay contuinidad y no retrocede al origen */
 		return i0;
 	}else if(ic1 != -1 && i1 != origen  && i1 != -1){
@@ -433,11 +434,12 @@ int count_FrontierEdges(int triangle, int *adj){
 int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, int *adj, int tnumber){
 	int i,j;
 	for (i = 0; i < tnumber; i++)
-		for (j = 0; j < 3; j++)
+		for (j = 0; j < 3; j++){
 			if(triangles[3*i +j] == v  && ( adj[3*i + ((j + 1)%3)] == -1 || adj[3*i + ((j + 2)%3)] == -1 )){
-				debug_print("%d | Triangles %d %d %d | ADJ  %d %d %d\n", i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
+				debug_print("v %d |t %d | Triangles %d %d %d | ADJ  %d %d %d\n", v, i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2]);
 				return i;
 			}
+		}
 				
 	printf("Error in %s\n", __func__);
     exit(0);
@@ -488,22 +490,61 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	a1 = adj[3*i + 1];
 	a2 = adj[3*i + 2];
 
-	debug_print("origen %d, actual %d  | Triangles %d %d %d | ADJ  %d %d %d\n", origen,i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2] );
+	debug_print("origen %d, actual %d  | Triangles %d %d %d | ADJ  %d %d %d\n", origen,i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2]);
 
 	if(a0 != NO_ADJ && t1 == v && origen != a0)
 			return t2;
-	else  if(a0 != NO_ADJ && t2 == v && origen != a0)
+	else if(a0 != NO_ADJ && t2 == v && origen != a0)
 			return t1;		
-	else  if(a1 != NO_ADJ && t0 == v && origen != a1)
+	else if(a1 != NO_ADJ && t0 == v && origen != a1)
 			return t2;
-	else  if(a1 != NO_ADJ && t2 == v && origen != a1)
+	else if(a1 != NO_ADJ && t2 == v && origen != a1)
 			return t0;
-	else  if(a2 != NO_ADJ && t0 == v && origen != a2)
+	else if(a2 != NO_ADJ && t0 == v && origen != a2)
 			return t1;
-	else  if(a2 != NO_ADJ && t1 == v && origen != a2)
+	else if(a2 != NO_ADJ && t1 == v && origen != a2)
 			return t0;
 
 	printf("Error in %s\n", __func__);
     exit(0);
 	return -1;
 }
+
+/*
+error en 147
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 7 | Triangles 41 123 37 | ADJ  -1 31 6
+triang.c:440:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 7 | Triangles 41 123 37 | ADJ  -1 31 6
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 8 | Triangles 95 91 37 | ADJ  197 33 42
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 31 | Triangles 31 41 37 | ADJ  7 -1 -1
+triang.c:440:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 31 | Triangles 31 41 37 | ADJ  7 -1 -1
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 33 | Triangles 31 95 37 | ADJ  8 -1 -1
+triang.c:440:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 33 | Triangles 31 95 37 | ADJ  8 -1 -1
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 196 | Triangles 66 123 37 | ADJ  -1 197 195
+triang.c:440:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 196 | Triangles 66 123 37 | ADJ  -1 197 195
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 37 |t 197 | Triangles 66 91 37 | ADJ  8 196 -1
+
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 123 |t 2 | Triangles 123 48 74 | ADJ  -1 6 3
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 123 |t 3 | Triangles 123 48 32 | ADJ  -1 195 2
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 123 |t 6 | Triangles 41 123 74 | ADJ  2 -1 7
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 123 |t 7 | Triangles 41 123 37 | ADJ  -1 31 
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 123 |t 195 | Triangles 66 123 32 | ADJ  3 -1 196
+triang.c:438:search_triangle_by_vertex_with_FrontierEdge(): v 123 |t 196 | Triangles 66 123 37 | ADJ  -1 197 195
+
+Recorrido, se salta los triangulos 7 y 6
+
+polygon.c:277:generate_polygon(): T 31 Tiene 2 Barrier edge, es oreja, se usa como semilla para generar el poly
+polygon.c:325:generate_polygon(): T_inicial 31 | Triangles 31 41 37 | ADJ  7 -1 -1
+polygon.c:326:generate_polygon(): initial_point 37 endpoint 41
+polygon.c:337:generate_polygon(): origen 31| t 7 | Triangles 41 123 37 | ADJ  -1 31 6
+polygon.c:337:generate_polygon(): origen 7| t 6 | Triangles 41 123 74 | ADJ  2 -1 7
+polygon.c:337:generate_polygon(): origen 6| t 2 | Triangles 123 48 74 | ADJ  -1 6 3
+polygon.c:337:generate_polygon(): origen 2| t 3 | Triangles 123 48 32 | ADJ  -1 195 2
+polygon.c:337:generate_polygon(): origen 3| t 195 | Triangles 66 123 32 | ADJ  3 -1 196
+polygon.c:337:generate_polygon(): origen 195| t 196 | Triangles 66 123 37 | ADJ  -1 197 195
+polygon.c:337:generate_polygon(): origen 196| t 197 | Triangles 66 91 37 | ADJ  8 196 -1
+polygon.c:337:generate_polygon(): origen 197| t 8 | Triangles 95 91 37 | ADJ  197 33 42
+polygon.c:337:generate_polygon(): origen 8| t 42 | Triangles 63 95 91 | ADJ  8 -1 -1
+polygon.c:337:generate_polygon(): origen 42| t 8 | Triangles 95 91 37 | ADJ  197 33 42
+polygon.c:337:generate_polygon(): origen 8| t 33 | Triangles 31 95 37 | ADJ  8 -1 -1
+
+*/
