@@ -150,6 +150,8 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
 
 void split_poly(int *original_poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int e1, int e2){
     int pos1, pos2,i;
+    pos1= -1;
+    pos2= -1;
     for(i =0; i< length_poly; i++)
         if(original_poly[i] == e1 || original_poly[i] == e2){
             pos1 = i;
@@ -160,8 +162,11 @@ void split_poly(int *original_poly, int length_poly, int *poly1, int *length_pol
             pos2 = i;
             break;
         }
-
     debug_print("Divide pos1: %d, pos2: %d \n", pos1, pos2);
+    if(pos1 == -1 || pos2 == -1){
+        printf("%s:%d:%s(): No se encontro pos1 o pos2\n",__FILE__,  __LINE__, __func__);
+        exit(0);
+    }
     
     *length_poly1 = abs(pos1-pos2) +1;
     *length_poly2 = length_poly - *length_poly1 +2;

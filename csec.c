@@ -12,11 +12,25 @@ make && ./uwu guitar 1 dat > a.off && geomview a.off
 
 SE HA CAMBIADO EL INPUT, qdelaunay cambia de i a Fv
 
-DEBUG
-
+DEBUG:
 rbox 100 D2 z > data.dat && make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat
 */
 
+/*
+Errores cococidos
+
+1.- rbox 16987 D2 z > data.dat &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat clear  
+
+Tiene un BE que es otro poly
+
+2.- rbox 147 D2 z > data.dat &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat           
+
+Error critico, cuando un poly inicia en un BE doble, puede que solo agarre la mitad de este y deje un vertice fuera de la malla
+
+3.- 
+
+Error critico, se genera un poligono inicial con 4 edges de area 0 (4) 10066 13263 7810 13263, se detectan 3 BE
+*/
 
 
 
