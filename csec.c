@@ -164,10 +164,6 @@ int main(int argc, char **argv)
 	{
 		if(!visited[i])
 		{
-			/* Se tiene una nueva raíz. */
-			int has_seed;
-			has_seed = FALSE;
-
 			/* Hacer DFS */
 			adj_graph_DFS(num_regs, i, adj, visited, root_id);		
 			num_regs++;
@@ -178,6 +174,7 @@ int main(int argc, char **argv)
 
 	debug_block(print_poly(root_id, tnumber); printf("\n"););
 	int num_fe;
+
 /* Etapa 5, elegir triangulos semilla 
 	
 	int *triangulos_semillas = (int *)malloc(num_regs*sizeof(int));
@@ -213,22 +210,22 @@ int main(int argc, char **argv)
 */
 	/* Se crean los poligonos */
 
-	int i_mesh = 0;
 	
 	int *poly = (int *)malloc(tnumber*sizeof(int));
-
+	int length_poly = 0;
 	int *pos_poly = (int *)malloc(tnumber*sizeof(int));
 	int id_pos_poly = 0;
 
 	int *mesh;
 	mesh = (int *)malloc(3*tnumber*sizeof(int));
-
-	int length_poly = 0;
+	int i_mesh = 0;	
+	
 	int num_BE;
 
 	for(i = 0; i < tnumber; i++){
 		visited[i] = FALSE;
 	}
+
 	debug_msg("Etapa 5: Generar poligonos\n");
 	for(i = 0; i < tnumber; i++)
 	{

@@ -54,10 +54,16 @@ int is_valid(int i, int *adj, int *adj_copy, int *root_id, int num_fe){
         {
             int ind = 3*i + j;
             int ind2 = 3*i + ((j + 1)%3);
-            if (adj_copy[ind] != TRIANG_BORDER && adj_copy[ind2] != TRIANG_BORDER)
+            if (adj_copy[ind] != TRIANG_BORDER && adj_copy[ind2] != TRIANG_BORDER){
                 if (root_id[i] !=  root_id[adj_copy[ind]] && root_id[i] !=  root_id[adj_copy[ind2]] )
                     return 1;
-                
+            }else if(adj_copy[ind] == TRIANG_BORDER){
+                if (root_id[i] !=  root_id[adj_copy[ind2]] )
+                    return 1;
+            }else if(adj_copy[ind2] == TRIANG_BORDER){
+                if (root_id[i] !=  root_id[adj_copy[ind]] )
+                    return 1;
+            }
         }   
     }
     return 0;
