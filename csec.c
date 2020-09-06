@@ -23,10 +23,6 @@ Errores cococidos
 
 Tiene un BE que es otro poly
 
-2.- rbox 147 D2 z > data.dat &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat           
-
-Error critico, cuando un poly inicia en un BE doble, puede que solo agarre la mitad de este y deje un vertice fuera de la malla
-
 3.- rbox 15486 D2 z > data.dat &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat
 
 
@@ -152,15 +148,15 @@ int main(int argc, char **argv)
 		num_fe = count_FrontierEdges(i, adj);
 
 		/* si tiene 2-3 froint edge y no ha sido visitado*/
-		if(num_fe >= 2 && !visited[i]){ 
+		if(num_fe > 0 && !visited[i]){ 
 
 			debug_msg("Generando polinomio\n");
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			num_BE = count_BarrierEdges(poly, length_poly);
 			
 			
-			save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
-			/*
+			//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+			
 			debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
 			if( num_BE > 0){
 				debug_print("Se dectecto %d BE\n", num_BE);
@@ -169,7 +165,7 @@ int main(int argc, char **argv)
 				debug_msg("Guardando poly\n");
 				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 			}
-			*/
+			
 			
 		}
 	}
