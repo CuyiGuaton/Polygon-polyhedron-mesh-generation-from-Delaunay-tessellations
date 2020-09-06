@@ -18,6 +18,50 @@
 #define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
 #define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
+    
+int is_valid(int i, int *adj, int *adj_copy, int *root_id, int num_fe){
+    //debug_print("i = %d, root_id[i] = %d, root_id[t0_adj] = %d, root_id[t1_adj] = %d, root_id[t2_adj] = %d\n", i, root_id[i], root_id[t0_adj], root_id[t1_adj], root_id[t2_adj]  );
+    //if( root_id[i] != root_id[t0_adj] && root_id[i] != root_id[t1_adj] && root_id[i] != root_id[t2_adj] ){
+    int j;
+    /*
+    for (j = 0; j < 3; j++)
+    {
+        debug_print("root_id[i] = %d, adj_copy[3*i + j] = %d, \n", root_id[i], adj_copy[3*i + j]);
+        if (adj_copy[3*i + j] != TRIANG_BORDER)
+        {
+          if (root_id[i] !=  root_id[adj_copy[3*i + j]])
+          {
+              return 1;
+          }
+        }  
+        
+    }*/
+    if(num_fe == 3){
+        return 1;
+    }else if (num_fe == 1)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            debug_print("root_id[i] = %d, adj_copy[3*i + j] = %d, \n", root_id[i], adj_copy[3*i + j]);
+            if (adj_copy[3*i + j] != TRIANG_BORDER)
+                if (root_id[i] !=  root_id[adj_copy[3*i + j]])
+                    return 1;
+                
+        }   
+    }else if(num_fe == 2)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            int ind = 3*i + j;
+            int ind2 = 3*i + ((j + 1)%3);
+            if (adj_copy[ind] != TRIANG_BORDER && adj_copy[ind2] != TRIANG_BORDER)
+                if (root_id[i] !=  root_id[adj_copy[ind]] && root_id[i] !=  root_id[adj_copy[ind2]] )
+                    return 1;
+                
+        }   
+    }
+    return 0;
+}
 
 void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, int *adj, double *r, int tnumber, int *mesh, int *i_mesh, int *pos_poly, int *id_pos_poly){
 
@@ -377,6 +421,8 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
 
         adj_counter = count_FrontierEdges(k, adj);
         debug_print("FE %d | origen %d t %d | Triangles %d %d %d | ADJ  %d %d %d\n", adj_counter, origen, k, triangles[3*k + 0], triangles[3*k + 1], triangles[3*k + 2], adj[3*k + 0], adj[3*k + 1], adj[3*k + 2]);
+        if(origen == -2)
+            exit(0);
         if (adj_counter == 2 && continuous != -1) {
             /* ///////////////////si tiene 2 frontier edge se agregan a poly //////////////////////////////////// */
 

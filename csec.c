@@ -41,6 +41,7 @@ Causa, El poligono inicia en el inicio de un Barrier edge, da una vuelta en u so
 #include "timestamp.h"
 #include "triang.h"
 #include "polygon.h"
+#include "adjgraph.h"
 #include <time.h>
 
 
@@ -63,6 +64,7 @@ int main(int argc, char **argv)
 	int tnumber;
 	double *r;
 	int *triangles;
+	
 	int *adj;
 
 	double *area_poly;
@@ -87,31 +89,43 @@ int main(int argc, char **argv)
 
 	int *max;
 	int *visited;
+	int *is_seed;
+	int *root_id;
+	int *adj_copy;
+	adj_copy = (int *)malloc(3*tnumber*sizeof(int));
 	max = (int *)malloc(tnumber*sizeof(int));
+	is_seed = (int *)malloc(tnumber*sizeof(int));
 	visited = (int *)malloc(tnumber*sizeof(int));
-	
+	root_id = (int *)malloc(tnumber*sizeof(int));
 	
 	area_poly = (double *)malloc(tnumber*sizeof(double));
 
 	int i;
 	int j;
-
-	
+	debug_print("Numero triangulos %d\n", tnumber);
+	debug_msg("Inicializando arreglos adionales\n");
 	/* Inicializar arreglos adicionales. */
 	for(i = 0; i < tnumber; i++)
 	{
 		visited[i] = FALSE;
+		is_seed[i] = FALSE;
+		for (j = 0; j < 3; j++)
+		{
+			adj_copy[3*i + j] = adj[3*i + j];
+		}
 		
-	
+		adj_copy[i] = adj[i];
 	}
 	
 	/* Etapa 1: Encontrar aristas máximas. */
+	debug_msg("Etapa 1: Encontrar aristas máximas. \n");
 	for(i = 0; i < tnumber; i++)
 	{
 		max[i] = max_edge_index(i, r, triangles);
 	}
 	
 	/* Etapa 2: Desconectar arcos asociados a aristas nomáx-nomáx. */
+	debug_msg("Etapa 2: Desconectar arcos asociados a aristas nomáx-nomáx. \n");
 	for(i = 0; i < tnumber; i++)
 	{
 		for(j = 0; j < 3; j++)
@@ -124,13 +138,83 @@ int main(int argc, char **argv)
 		}
 	}
 
+	/* Etapa 3: Marcar triángulos semilla. */
+	debug_msg("Etapa 3: Marcar triángulos semilla.\n");
+	for(i = 0; i < tnumber; i++)
+	{
+		for(j = 0; j < 3; j++)
+		{
+			int k;
+			
+			k = adj[3*i + j];
+			
+			if((k != NO_ADJ) && (k != TRIANG_BORDER) && is_max_max(i, adj[3*i + j], triangles, max) && (k < i))
+			{
+				is_seed[i] = TRUE;
+			}
+		}
+	}
 
 	
-	/* Se crean los poligonos */
+	/* Etapa 4: Generar regiones */
+	debug_msg("Etapa 4: Generar regiones\n");
+	int num_regs = 0;
 	
-	
-	int i_mesh = 0;
+	for(i = 0; i < tnumber; i++)
+	{
+		if(!visited[i])
+		{
+			/* Se tiene una nueva raíz. */
+			int has_seed;
+			has_seed = FALSE;
+
+			/* Hacer DFS */
+			adj_graph_DFS(num_regs, i, adj, visited, root_id);		
+			num_regs++;
+			
+		}
+		
+	}
+
+	debug_block(print_poly(root_id, tnumber); printf("\n"););
 	int num_fe;
+/* Etapa 5, elegir triangulos semilla 
+	
+	int *triangulos_semillas = (int *)malloc(num_regs*sizeof(int));
+	int t0 = adj[3 * i + 0];
+	int t1 = adj[3 * i + 1];
+	int t2 = adj[3 * i + 2];
+	int t0_adj = adj_copy[3 * i + 0];
+	int t1_adj = adj_copy[3 * i + 1];
+	int t2_adj = adj_copy[3 * i + 2];
+	for(i = 0; i < tnumber; i++){
+		num_fe = count_FrontierEdges(i, adj);
+		if(num_fe == 3){
+			triangulos_semillas[i] = i;
+		}else if (num_fe == 2)
+		{
+			if ((t0 == NO_ADJ && root_id[t0_adj] != root_id[i] ) && (t1 == NO_ADJ && root_id[t1_adj] != root_id[i])) {
+				triangulos_semillas[i] = i;
+			}else if  ((t0 == NO_ADJ && root_id[t0_adj] != root_id[i] ) && (t2 == NO_ADJ && root_id[t2_adj] != root_id[i]))
+			{
+				triangulos_semillas[i] = i;
+			}else if  ((t1 == NO_ADJ && root_id[t1_adj] != root_id[i] ) && (t2 == NO_ADJ && root_id[t2_adj] != root_id[i])){
+				triangulos_semillas[i] = i;
+			}
+			
+		}else if (num_fe == 1)
+		{
+			if((t0 == NO_ADJ && root_id[t0_adj] != root_id[i]) || (t1 == NO_ADJ && root_id[t1_adj] != root_id[i] ) || (t2 == NO_ADJ && root_id[t2_adj] != root_id[i]))
+				triangulos_semillas[i] = i;
+		}
+	}
+
+	print_poly(triangulos_semillas, num_regs);
+*/
+	/* Se crean los poligonos */
+
+	int i_mesh = 0;
+	
 	int *poly = (int *)malloc(tnumber*sizeof(int));
 
 	int *pos_poly = (int *)malloc(tnumber*sizeof(int));
@@ -142,34 +226,40 @@ int main(int argc, char **argv)
 	int length_poly = 0;
 	int num_BE;
 
+	for(i = 0; i < tnumber; i++){
+		visited[i] = FALSE;
+	}
+	debug_msg("Etapa 5: Generar poligonos\n");
 	for(i = 0; i < tnumber; i++)
 	{
 		/*busca fronter edge en un triangulo, hacer función está wea*/
+		
 		num_fe = count_FrontierEdges(i, adj);
 
 		/* si tiene 2-3 froint edge y no ha sido visitado*/
-		if(num_fe > 0 && !visited[i]){ 
+		//AGREGAR LA CONDICION DE QUE SI ROOT_ID = -1 ENTONCES NO GENERA POLY, MARCAR_ID[ALGO] == -1 DESPUES DE GENERAR C/POLY!!!
+		if(is_valid(i, adj,adj_copy,root_id,num_fe) && !visited[i]){
 
-			debug_msg("Generando polinomio\n");
-			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
-			num_BE = count_BarrierEdges(poly, length_poly);
-			
-			
-			//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
-			
-			debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
-			if( num_BE > 0){
-				debug_print("Se dectecto %d BE\n", num_BE);
-				remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly);
-			}else{
-				debug_msg("Guardando poly\n");
-				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+				debug_msg("Generando polinomio\n");
+				length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
+				num_BE = count_BarrierEdges(poly, length_poly);
+				
+				
+				//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+				
+				debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
+				if( num_BE > 0){
+					debug_print("Se dectecto %d BE\n", num_BE);
+					remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly);
+				}else{
+					debug_msg("Guardando poly\n");
+					save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+				}
+				
 			}
-			
-			
-		}
 	}
 	
+	/*
 	for (i = 0; i < tnumber; i++) 
 	{
 		if(visited[i] == FALSE){
@@ -177,7 +267,7 @@ int main(int argc, char **argv)
 			return 0;
 		}
 	}
-	
+	*/
 	
 	write_geomview(r,triangles, pnumber, tnumber,i_mesh, mesh, id_pos_poly, pos_poly);
 
