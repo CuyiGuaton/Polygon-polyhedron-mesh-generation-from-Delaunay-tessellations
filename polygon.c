@@ -335,7 +335,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
             t2 = adj[3 * k + 2];
 
             adj_counter = count_FrontierEdges(k, adj);
-           debug_print("origen %d| t %d | Triangles %d %d %d | ADJ  %d %d %d\n", origen, k, triangles[3*k + 0], triangles[3*k + 1], triangles[3*k + 2], adj[3*k + 0], adj[3*k + 1], adj[3*k + 2]);
+            debug_print("FE %d | origen %d t %d | Triangles %d %d %d | ADJ  %d %d %d\n", adj_counter, origen, k, triangles[3*k + 0], triangles[3*k + 1], triangles[3*k + 2], adj[3*k + 0], adj[3*k + 1], adj[3*k + 2]);
             if (adj_counter == 2 && continuous != -1) {
                 /* ///////////////////si tiene 2 frontier edge se agregan a poly //////////////////////////////////// */
 
@@ -473,3 +473,4 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
     }
     return ind_poly;
 }
+

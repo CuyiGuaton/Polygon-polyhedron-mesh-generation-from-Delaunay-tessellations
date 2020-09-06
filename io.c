@@ -14,11 +14,15 @@
 #define filespath "input/"
 #define cmdname "qdelaunay"
 
-#define NZ_FILE_SUFFIX "_nz.dat"
-#define IV_FILE_SUFFIX "_iv.dat"
-#define BV_FILE_SUFFIX "_bv.dat"
-#define W_FILE_SUFFIX "_w.dat"
+#ifdef DEBUG
+#define DEBUG_TEST 1
+#else
+#define DEBUG_TEST 0
+#endif
 
+#define debug_block(fmt) do { if (DEBUG_TEST){ fmt }} while (0)
+#define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
+#define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
 /*read files*/
 /*Lee tres archivos, uno de nodes, otro de triangulos y otro de t adj*/
@@ -75,9 +79,14 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 	fscanf(nodes, "%d %lf %lf %d", &tmp_int_id, &tmp_dbl0, &tmp_dbl1, &tmp_int0);
 	(*r)[0] = tmp_dbl0;
 	(*r)[1] = tmp_dbl1;
-	/*printf("%d %lf %lf\n", i, tmp_dbl0, tmp_dbl1);*/
-	if(tmp_int_id == 1) 
+	
+	if(tmp_int_id == 1){
 		flag = TRUE;
+		debug_msg("El indice del archivo node es 1\n");
+	}else
+	{
+		debug_msg("El indice del archivo node es 0\n");
+	}
 
 	for(i = 1; i < *pnumber; i++)
 	{
@@ -91,7 +100,7 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 	
 	fclose(nodes);
 
-
+	
 
 	/*triangulos */
 	cmd[0] = '\0';
@@ -116,7 +125,8 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 		posix_memalign((void **)p, alignment, new_aligned_mem_size(3*(*tnumber)*sizeof(int)));
 	}
 	
-	if(!flag){
+
+	if(flag == FALSE){
 		/* Leer puntos de cada triángulo y verterlos en arreglo. */
 		for(i = 0; i < *tnumber; i++)
 		{
@@ -148,7 +158,7 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 	fclose(triangles);
 
 
-	/*triangulos */
+	/*vecindad */
 	cmd[0] = '\0';
 	strcat(cmd, filespath);
 	strcat(cmd, ppath);
@@ -172,15 +182,15 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 		posix_memalign((void **)adj, alignment, new_aligned_mem_size(3*(*tnumber)*sizeof(int)));
 	}
 	
-	if(!flag){
+	if(flag == FALSE){
 		for(i = 0; i < *tnumber; i++)
 		{
 			fscanf(tadj, "%d %d %d %d\n", &tmp_int_id, &tmp_int0, &tmp_int1, &tmp_int2);
-			
+			//debug_print("%d %d %d %d\n", tmp_int_id, tmp_int0, tmp_int1, tmp_int2);
 			/* Inicializar campos. Si no hay adyacencia, colocar  NO_ADJ. */
-			(*adj)[3*i + 0] = (tmp_int0 < 0) ? NO_ADJ : tmp_int0;
-			(*adj)[3*i + 1] = (tmp_int1 < 0) ? NO_ADJ : tmp_int1;
-			(*adj)[3*i + 2] = (tmp_int2 < 0) ? NO_ADJ : tmp_int2;
+			(*adj)[3*i + 0] = (tmp_int0 < 0) ? TRIANG_BORDER : tmp_int0;
+			(*adj)[3*i + 1] = (tmp_int1 < 0) ? TRIANG_BORDER : tmp_int1;
+			(*adj)[3*i + 2] = (tmp_int2 < 0) ? TRIANG_BORDER : tmp_int2;
 			
 		}
 	}else
@@ -190,9 +200,9 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 			fscanf(tadj, "%d %d %d %d\n", &tmp_int_id, &tmp_int0, &tmp_int1, &tmp_int2);
 			
 			/* Inicializar campos. Si no hay adyacencia, colocar  NO_ADJ. */
-			(*adj)[3*i + 0] = (tmp_int0 < 0) ? NO_ADJ : tmp_int0-1;
-			(*adj)[3*i + 1] = (tmp_int1 < 0) ? NO_ADJ : tmp_int1-1;
-			(*adj)[3*i + 2] = (tmp_int2 < 0) ? NO_ADJ : tmp_int2-1;
+			(*adj)[3*i + 0] = (tmp_int0 < 0) ? TRIANG_BORDER : tmp_int0-1;
+			(*adj)[3*i + 1] = (tmp_int1 < 0) ? TRIANG_BORDER : tmp_int1-1;
+			(*adj)[3*i + 2] = (tmp_int2 < 0) ? TRIANG_BORDER : tmp_int2-1;
 			
 		}
 	}
@@ -297,9 +307,9 @@ void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 		fscanf(qdp, "3 %d %d %d\n", &tmp_int0, &tmp_int1, &tmp_int2);
 		
 		/* Inicializar campos. Si no hay adyacencia, colocar  NO_ADJ. */
-		(*adj)[3*i + 0] = (tmp_int0 < 0) ? NO_ADJ : tmp_int0;
-		(*adj)[3*i + 1] = (tmp_int1 < 0) ? NO_ADJ : tmp_int1;
-		(*adj)[3*i + 2] = (tmp_int2 < 0) ? NO_ADJ : tmp_int2;
+		(*adj)[3*i + 0] = (tmp_int0 < 0) ? TRIANG_BORDER : tmp_int0;
+		(*adj)[3*i + 1] = (tmp_int1 < 0) ? TRIANG_BORDER : tmp_int1;
+		(*adj)[3*i + 2] = (tmp_int2 < 0) ? TRIANG_BORDER : tmp_int2;
 	}
 	
 	/* Ignorar línea */
@@ -343,6 +353,7 @@ void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 	fclose(pf);
 }
 
+
 /*geomview output*/
 void write_geomview(double *r, int *p,  int pnumber,
 									int tnumber, int ind_poly, 
@@ -369,93 +380,32 @@ void write_geomview(double *r, int *p,  int pnumber,
 		printf("\n");
 		anterior = start_polygon[i] ;
 	}
-	
+
+	int p0, p1,p2;
+	for(i = 0; i < tnumber; i++){
+		p0 = 3*i + 0;
+		p1 = 3*i + 1;
+		p2 = 3*i + 2;
+		printf("# %d %d\n", p0, p1);
+		printf("VECT 1 2 1 2 1\n");
+		printf("%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p0]+0], r[2*p[p0]+1], 
+												r[2*p[p1]+0], r[2*p[p1]+1]);
+		printf("0 1 1 1\n");
+		
+		printf("# %d %d\n", p1, p2);
+		printf("VECT 1 2 1 2 1\n");
+		printf("%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p1]+0], r[2*p[p1]+1], 
+												r[2*p[p2]+0], r[2*p[p2]+1]);
+		printf("0 1 1 1\n");
+
+		printf("# %d %d\n", p0, p2);
+		printf("VECT 1 2 1 2 1\n");
+		printf("%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p0]+0], r[2*p[p0]+1], 
+												r[2*p[p2]+0], r[2*p[p2]+1]);
+		printf("0 1 1 1\n");
+	}
 	printf("} }\n");
 }
-
-/* write_classification printf("%.2f %.2f %.2f 0.75\n", ((float)rand()/(float)(RAND_MAX)), ((float)rand()/(float)(RAND_MAX)), ((float)rand()/(float)(RAND_MAX)));
- * 
- * Escribe la clasificación de los triángulos en archivos con prefijo cpath_prefix.
- * */
-
-void write_classification(char *cpath_prefix, int *root_id, int *type, double *area,
-													int tnumber, int num_nonzone_triangs,
-													int num_ivoid_triangs, int num_bvoid_triangs, int num_wall_triangs)
-{
-	FILE *fp_nz;
-	FILE *fp_iv;
-	FILE *fp_bv;
-	FILE *fp_w;
-	FILE *fp_tmp;
-	int i;
-	
-	int cpath_prefix_length;
-	
-	cpath_prefix_length = strlen(cpath_prefix);
-	
-	char nz_path[cpath_prefix_length + strlen(NZ_FILE_SUFFIX)];
-	char iv_path[cpath_prefix_length + strlen(IV_FILE_SUFFIX)];
-	char bv_path[cpath_prefix_length + strlen(BV_FILE_SUFFIX)];
-	char w_path[cpath_prefix_length + strlen(W_FILE_SUFFIX)];
-	
-	/* Construir nombres de archivo. */
-	strcpy(nz_path, cpath_prefix);
-	strcpy(iv_path, cpath_prefix);
-	strcpy(bv_path, cpath_prefix);
-	strcpy(w_path, cpath_prefix);
-	
-	strcat(nz_path, NZ_FILE_SUFFIX);
-	strcat(iv_path, IV_FILE_SUFFIX);
-	strcat(bv_path, BV_FILE_SUFFIX);
-	strcat(w_path, W_FILE_SUFFIX);
-	
-	/* Abrir archivos. */
-	fp_nz = fopen(nz_path, "w+");
-	fp_iv = fopen(iv_path, "w+");
-	fp_bv = fopen(bv_path, "w+");
-	fp_w = fopen(w_path, "w+");
-	
-	/* Escribir número de triángulos. */
-	fprintf(fp_nz, "%d\n", num_nonzone_triangs);
-	fprintf(fp_iv, "%d\n", num_ivoid_triangs);
-	fprintf(fp_bv, "%d\n", num_bvoid_triangs);
-	fprintf(fp_w, "%d\n", num_wall_triangs);
-
-	/* Escribir datos. */
-	for(i = 0; i < tnumber; i++)
-	{
-		/* Dependiendo del tipo, se escribirá en uno y otro archivo. */
-		if(type[i] == NONZONE)
-		{
-			fp_tmp = fp_nz;
-		}
-		else if(type[i] == INNER_VOID)
-		{
-			fp_tmp = fp_iv;
-		}
-		else if(type[i] == BORDER_VOID)
-		{
-			fp_tmp = fp_bv;
-		}
-		else if(type[i] == WALL)
-		{
-			fp_tmp = fp_w;
-		}
-		else
-		{
-			printf("** ERROR ** write_classification: Índice de clasificación de triángulo desconocido.\n" );
-			exit(EXIT_FAILURE);
-		}
-		fprintf(fp_tmp, "%d %d %lf\n", root_id[i], i, area[i]);
-	}
-	
-	/* Cerrar archivos. */
-	fclose(fp_nz);
-	fclose(fp_iv);
-	fclose(fp_bv);
-	fclose(fp_w);
-}
-
 
 
 /* read_triangles

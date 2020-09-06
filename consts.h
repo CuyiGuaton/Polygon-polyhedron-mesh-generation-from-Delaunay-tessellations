@@ -8,8 +8,3 @@
 #define FALSE 0
 #define TRUE !FALSE
 
-/* Identificadores para los distintos tipos de región (zonas y no-zonas). */
-#define NONZONE -1
-#define INNER_VOID 0
-#define BORDER_VOID 1
-#define WALL 2

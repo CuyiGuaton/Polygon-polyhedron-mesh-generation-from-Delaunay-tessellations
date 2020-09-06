@@ -27,9 +27,11 @@ Tiene un BE que es otro poly
 
 Error critico, cuando un poly inicia en un BE doble, puede que solo agarre la mitad de este y deje un vertice fuera de la malla
 
-3.- 
+3.- rbox 15486 D2 z > data.dat &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat
 
-Error critico, se genera un poligono inicial con 4 edges de area 0 (4) 10066 13263 7810 13263, se detectan 3 BE
+
+Error critico, se genera un poligono inicial con 4 edges de area 0 (4) 10066 13263 7810 13263, se detectan 3 BEg
+Causa, El poligono inicia en el inicio de un Barrier edge, da una vuelta en u sobre este y cree que se termino de formar el poligono
 */
 
 
@@ -40,7 +42,6 @@ Error critico, se genera un poligono inicial con 4 edges de area 0 (4) 10066 132
 #include "io.h"
 #include "args.h"
 #include "consts.h"
-#include "adjgraph.h"
 #include "timestamp.h"
 #include "triang.h"
 #include "polygon.h"
@@ -54,9 +55,7 @@ Error critico, se genera un poligono inicial con 4 edges de area 0 (4) 10066 132
 #endif
 
 #define debug_block(fmt) do { if (DEBUG_TEST){ fmt }} while (0)
-
 #define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
-
 #define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
 int main(int argc, char **argv)
@@ -121,7 +120,7 @@ int main(int argc, char **argv)
 	{
 		for(j = 0; j < 3; j++)
 		{
-			if(adj[3*i +j] == NO_ADJ || is_nomax_nomax(i, adj[3*i + j], triangles, max))
+			if(adj[3*i +j] == TRIANG_BORDER || is_nomax_nomax(i, adj[3*i + j], triangles, max))
 			{
 				adj[3*i + j] = NO_ADJ;
 			}
@@ -158,7 +157,10 @@ int main(int argc, char **argv)
 			debug_msg("Generando polinomio\n");
 			length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 			num_BE = count_BarrierEdges(poly, length_poly);
-
+			
+			
+			save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+			/*
 			debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
 			if( num_BE > 0){
 				debug_print("Se dectecto %d BE\n", num_BE);
@@ -167,6 +169,7 @@ int main(int argc, char **argv)
 				debug_msg("Guardando poly\n");
 				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 			}
+			*/
 			
 		}
 	}
