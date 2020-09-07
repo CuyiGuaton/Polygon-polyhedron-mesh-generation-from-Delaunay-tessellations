@@ -12,6 +12,7 @@
 
 /*#define cmdpath "/home/jojeda/qhull-2015.2/bin/qdelaunay"*/
 #define filespath "input/"
+#define filespathoutput "output/"
 #define cmdname "qdelaunay"
 
 #ifdef DEBUG
@@ -357,54 +358,73 @@ void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 /*geomview output*/
 void write_geomview(double *r, int *p,  int pnumber,
 									int tnumber, int ind_poly, 
-									int *polygon, int id_start_poly,int *start_polygon){
+									int *polygon, int id_start_poly,int *start_polygon, int print_triangles, char *ppath){
 
 	int i,j;
 	
+	
+	char cmd[1024] = "\0";
+	strcat(cmd, filespathoutput);
+	strcat(cmd, ppath);
+	strcat(cmd,".off");
+	debug_print("Imprimiendo archivo en %s\n", cmd);
+	FILE *fptr;
+    fptr = fopen(cmd, "w");
+	if(fptr == NULL){
+		printf("Hmnito, no abrio el archivo :C\n");
+		perror("fopen");
+		exit(0);
+	}
+	debug_msg("Archivo abierto, imprimiendo malla poligonal\n");
 	srand(138); 
-	printf("{appearance  {+edge +face linewidth 2} LIST {\n OFF\n");
+	fprintf(fptr, "{appearance  {+edge +face linewidth 2} LIST {\n OFF\n");
+	
 
-
-	printf("%d %d 0\n", pnumber, id_start_poly);
+	fprintf(fptr,"%d %d 0\n", pnumber, id_start_poly);
 	for(i = 0; i < pnumber; i++)
-		printf("%.3f %.3f 0\n", r[2*i + 0], r[2*i + 1]);
+		fprintf(fptr,"%.3f %.3f 0\n", r[2*i + 0], r[2*i + 1]);
 	
 	int anterior = 0;
 	for(j = 0,i = 0; i< id_start_poly; i ++){
-		printf("%d ", start_polygon[i] - anterior);
+		fprintf(fptr,"%d ", start_polygon[i] - anterior);
 		for(; j <  start_polygon[i] ; j = j + 1 ){
-				printf("%d ", polygon[j]);
+				fprintf(fptr,"%d ", polygon[j]);
 				
 		}
 
-		printf("\n");
+		fprintf(fptr,"\n");
 		anterior = start_polygon[i] ;
 	}
+	if (print_triangles)
+	{
+		debug_msg("Imprimiendo triangulos\n");
+		int p0, p1,p2;
+		for(i = 0; i < tnumber; i++){
+			p0 = 3*i + 0;
+			p1 = 3*i + 1;
+			p2 = 3*i + 2;
+			fprintf(fptr,"# %d %d\n", p0, p1);
+			fprintf(fptr,"VECT 1 2 1 2 1\n");
+			fprintf(fptr,"%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p0]+0], r[2*p[p0]+1], 
+													r[2*p[p1]+0], r[2*p[p1]+1]);
+			fprintf(fptr,"0 1 1 1\n");
+			
+			fprintf(fptr,"# %d %d\n", p1, p2);
+			fprintf(fptr,"VECT 1 2 1 2 1\n");
+			fprintf(fptr,"%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p1]+0], r[2*p[p1]+1], 
+													r[2*p[p2]+0], r[2*p[p2]+1]);
+			fprintf(fptr,"0 1 1 1\n");
 
-	int p0, p1,p2;
-	for(i = 0; i < tnumber; i++){
-		p0 = 3*i + 0;
-		p1 = 3*i + 1;
-		p2 = 3*i + 2;
-		printf("# %d %d\n", p0, p1);
-		printf("VECT 1 2 1 2 1\n");
-		printf("%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p0]+0], r[2*p[p0]+1], 
-												r[2*p[p1]+0], r[2*p[p1]+1]);
-		printf("0 1 1 1\n");
-		
-		printf("# %d %d\n", p1, p2);
-		printf("VECT 1 2 1 2 1\n");
-		printf("%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p1]+0], r[2*p[p1]+1], 
-												r[2*p[p2]+0], r[2*p[p2]+1]);
-		printf("0 1 1 1\n");
-
-		printf("# %d %d\n", p0, p2);
-		printf("VECT 1 2 1 2 1\n");
-		printf("%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p0]+0], r[2*p[p0]+1], 
-												r[2*p[p2]+0], r[2*p[p2]+1]);
-		printf("0 1 1 1\n");
+			fprintf(fptr,"# %d %d\n", p0, p2);
+			fprintf(fptr,"VECT 1 2 1 2 1\n");
+			fprintf(fptr,"%.3f %.3f 0\n%.3f %.3f 0\n",	r[2*p[p0]+0], r[2*p[p0]+1], 
+													r[2*p[p2]+0], r[2*p[p2]+1]);
+			fprintf(fptr,"0 1 1 1\n");
+		}
 	}
-	printf("} }\n");
+	fprintf(fptr,"} }\n");
+    fclose(fptr);
+
 }
 
 

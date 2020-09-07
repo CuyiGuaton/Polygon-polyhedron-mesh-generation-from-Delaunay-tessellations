@@ -1,33 +1,27 @@
 /* Programa principal para O(n) secuencial. 
 
-Conjunto de puntos aleatorios:
+Uso ej:
 
-rbox 100 D2 z > data.dat && make && ./uwu data.dat 0 dat
+rbox 186 D2 z > data.dat &&  make  && ./uwu data.dat 0 0 && geomview output/data.dat.off
 
-$ rbox 1000 D2 z > data.dat && make && ./uwu data.dat 0 dat > a.off && geomview a.off
+make && ./uwu feamy_parabolic_main_norms_t3_hsize_01 1 1 && geomview output/feamy_parabolic_main_norms_t3_hsize_01.off
 
-Guitarra:
+argumentos:
 
-make && ./uwu guitar 1 dat > a.off && geomview a.off 
-
-SE HA CAMBIADO EL INPUT, qdelaunay cambia de i a Fv
+arg[1] = Nombre archivo en input/
+arg[2] = 1 si viene un .poly, 0 si son puntos aleatorios
+arg[3] = 1 para imprimir triangulos  y malla poly, 0 para imprimir solo malla poly
 
 DEBUG:
-rbox 100 D2 z > data.dat && make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat
+rbox 186 D2 z > data &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 1    
 */
 
 /*
 Errores cococidos
 
-1.- rbox 16987 D2 z > data.dat &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat clear  
-
-Tiene un BE que es otro poly
-
-3.- rbox 15486 D2 z > data.dat &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 dat
+1.- rbox 10000 D2 z > data.dat &&  make  && ./uwu data.dat 0 dat > a.off && geomview a.off
 
 
-Error critico, se genera un poligono inicial con 4 edges de area 0 (4) 10066 13263 7810 13263, se detectan 3 BEg
-Causa, El poligono inicia en el inicio de un Barrier edge, da una vuelta en u sobre este y cree que se termino de formar el poligono
 */
 
 
@@ -70,18 +64,18 @@ int main(int argc, char **argv)
 	double *area_poly;
 
 	char *ppath;
-	double threshold;
-	char *cpath_prefix;
+	int fromfiles;
+	int print_triangles;
 	struct timeval t;
 	
 	start_time_measure(&t);
 	
-	read_arguments(argc, argv, &ppath, &threshold, &cpath_prefix);
+	read_arguments(argc, argv, &ppath, &fromfiles, &print_triangles);
 	
 
 	/* print_timestamp("Ejecutando qdelaunay...\n", t); */
 	
-	if(threshold == 1)
+	if(fromfiles == 1)
 		read_fromfiles_data(ppath, &r, &triangles, &adj, &pnumber, &tnumber, NULL);
 	else
 		read_qdelaunay_data(ppath, &r, &triangles, &adj, &pnumber, &tnumber, NULL);
@@ -175,39 +169,6 @@ int main(int argc, char **argv)
 	debug_block(print_poly(root_id, tnumber); printf("\n"););
 	int num_fe;
 
-/* Etapa 5, elegir triangulos semilla 
-	
-	int *triangulos_semillas = (int *)malloc(num_regs*sizeof(int));
-	int t0 = adj[3 * i + 0];
-	int t1 = adj[3 * i + 1];
-	int t2 = adj[3 * i + 2];
-	int t0_adj = adj_copy[3 * i + 0];
-	int t1_adj = adj_copy[3 * i + 1];
-	int t2_adj = adj_copy[3 * i + 2];
-	for(i = 0; i < tnumber; i++){
-		num_fe = count_FrontierEdges(i, adj);
-		if(num_fe == 3){
-			triangulos_semillas[i] = i;
-		}else if (num_fe == 2)
-		{
-			if ((t0 == NO_ADJ && root_id[t0_adj] != root_id[i] ) && (t1 == NO_ADJ && root_id[t1_adj] != root_id[i])) {
-				triangulos_semillas[i] = i;
-			}else if  ((t0 == NO_ADJ && root_id[t0_adj] != root_id[i] ) && (t2 == NO_ADJ && root_id[t2_adj] != root_id[i]))
-			{
-				triangulos_semillas[i] = i;
-			}else if  ((t1 == NO_ADJ && root_id[t1_adj] != root_id[i] ) && (t2 == NO_ADJ && root_id[t2_adj] != root_id[i])){
-				triangulos_semillas[i] = i;
-			}
-			
-		}else if (num_fe == 1)
-		{
-			if((t0 == NO_ADJ && root_id[t0_adj] != root_id[i]) || (t1 == NO_ADJ && root_id[t1_adj] != root_id[i] ) || (t2 == NO_ADJ && root_id[t2_adj] != root_id[i]))
-				triangulos_semillas[i] = i;
-		}
-	}
-
-	print_poly(triangulos_semillas, num_regs);
-*/
 	/* Se crean los poligonos */
 
 	
@@ -256,7 +217,7 @@ int main(int argc, char **argv)
 			}
 	}
 	
-	/*
+	
 	for (i = 0; i < tnumber; i++) 
 	{
 		if(visited[i] == FALSE){
@@ -264,9 +225,9 @@ int main(int argc, char **argv)
 			return 0;
 		}
 	}
-	*/
 	
-	write_geomview(r,triangles, pnumber, tnumber,i_mesh, mesh, id_pos_poly, pos_poly);
+	
+	write_geomview(r,triangles, pnumber, tnumber,i_mesh, mesh, id_pos_poly, pos_poly, print_triangles, ppath);
 
 
 	free(r);
