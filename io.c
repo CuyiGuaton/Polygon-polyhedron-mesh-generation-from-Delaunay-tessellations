@@ -375,7 +375,6 @@ void write_geomview(double *r, int *p,  int pnumber,
 		perror("fopen");
 		exit(0);
 	}
-	debug_msg("Archivo abierto, imprimiendo malla poligonal\n");
 	
 	if (print_triangles)
 	{
@@ -393,6 +392,7 @@ void write_geomview(double *r, int *p,  int pnumber,
 			fprintf(fptr,"3 0 1 2  1.0 0.0 1.0 1 }\n");
 		}
 	}
+	debug_print("Imprimiendo %d poligonos\n", id_start_poly);
 	fprintf(fptr, "{ appearance  {+edge +face linewidth 2} LIST\n");
 	fprintf(fptr, "OFF\n");
 	fprintf(fptr,"%d %d 0\n", pnumber, id_start_poly);
@@ -412,7 +412,7 @@ void write_geomview(double *r, int *p,  int pnumber,
 
 	
 	if(print_triangles){
-		debug_msg("Imprimiendo triangulos\n");
+		debug_msg("Imprimiendo malla delaunay\n");
 		fprintf(fptr, "{ appearance  {+edge -face linewidth 2} LIST\n");
 		int p0, p1,p2;
 		for(i = 0; i < tnumber; i++){
