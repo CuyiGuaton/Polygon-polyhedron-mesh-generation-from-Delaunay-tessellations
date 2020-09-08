@@ -181,6 +181,9 @@ int main(int argc, char **argv)
 	mesh = (int *)malloc(3*tnumber*sizeof(int));
 	int i_mesh = 0;	
 	
+	int *chose_seed_triangle;
+	chose_seed_triangle = (int *)malloc(num_regs*sizeof(int));
+	int id_chose_seed_triangle = 0;
 	int num_BE;
 
 	for(i = 0; i < tnumber; i++){
@@ -198,13 +201,16 @@ int main(int argc, char **argv)
 		//AGREGAR LA CONDICION DE QUE SI ROOT_ID = -1 ENTONCES NO GENERA POLY, MARCAR_ID[ALGO] == -1 DESPUES DE GENERAR C/POLY!!!
 		if(is_valid(i, adj,adj_copy,root_id,num_fe) && !visited[i]){
 
+				chose_seed_triangle[id_chose_seed_triangle] = i;
+				id_chose_seed_triangle++;
+
 				debug_msg("Generando polinomio\n");
 				length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
 				num_BE = count_BarrierEdges(poly, length_poly);
 				
 				
-				//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
-				
+				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+				/*
 				debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
 				if( num_BE > 0){
 					debug_print("Se dectecto %d BE\n", num_BE);
@@ -213,6 +219,7 @@ int main(int argc, char **argv)
 					debug_msg("Guardando poly\n");
 					save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 				}
+				*/
 				
 			}
 	}
@@ -227,7 +234,7 @@ int main(int argc, char **argv)
 	}
 	
 	
-	write_geomview(r,triangles, pnumber, tnumber,i_mesh, mesh, id_pos_poly, pos_poly, print_triangles, ppath);
+	write_geomview(r,triangles, pnumber, tnumber,i_mesh, mesh, id_pos_poly, pos_poly, print_triangles, ppath, chose_seed_triangle, id_chose_seed_triangle);
 
 
 	free(r);

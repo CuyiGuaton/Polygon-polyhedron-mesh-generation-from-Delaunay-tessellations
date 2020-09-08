@@ -43,9 +43,14 @@ int is_valid(int i, int *adj, int *adj_copy, int *root_id, int num_fe){
         for (j = 0; j < 3; j++)
         {
             debug_print("root_id[i] = %d, adj_copy[3*i + j] = %d, \n", root_id[i], adj_copy[3*i + j]);
-            if (adj_copy[3*i + j] != TRIANG_BORDER)
+            if (adj_copy[3*i + j] != TRIANG_BORDER){
                 if (root_id[i] !=  root_id[adj_copy[3*i + j]])
                     return 1;
+            }else
+            {
+                return 1;
+            }
+            
                 
         }   
     }else if(num_fe == 2)

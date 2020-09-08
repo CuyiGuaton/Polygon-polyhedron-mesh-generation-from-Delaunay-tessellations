@@ -358,10 +358,10 @@ void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 /*geomview output*/
 void write_geomview(double *r, int *p,  int pnumber,
 									int tnumber, int ind_poly, 
-									int *polygon, int id_start_poly,int *start_polygon, int print_triangles, char *ppath){
+									int *polygon, int id_start_poly,int *start_polygon, int print_triangles, char *ppath,
+									int *chose_seed_triangle, int id_chose_seed_triangle){
 
 	int i,j;
-	
 	
 	char cmd[1024] = "\0";
 	strcat(cmd, filespathoutput);
@@ -376,10 +376,25 @@ void write_geomview(double *r, int *p,  int pnumber,
 		exit(0);
 	}
 	debug_msg("Archivo abierto, imprimiendo malla poligonal\n");
-	srand(138); 
-	fprintf(fptr, "{appearance  {+edge +face linewidth 2} LIST {\n OFF\n");
 	
+	if (print_triangles)
+	{
+		debug_print("Imprimiendo %d triangulos semilla", id_chose_seed_triangle);
 
+		fprintf(fptr, "{ appearance  {-edge +face linewidth 2} LIST\n");
+		for(j = 0; j < id_chose_seed_triangle; j++){
+
+			i = chose_seed_triangle[j];
+			fprintf(fptr,"{ OFF 3 1 1\n");
+			fprintf(fptr,"%.3f %.3f 0\n%.3f %.3f 0\n%.3f %.3f 0\n",   r[2*p[3*i + 0] + 0], r[2*p[3*i + 0] + 1], 
+																r[2*p[3*i + 1] + 0], r[2*p[3*i + 1] + 1], 
+																r[2*p[3*i + 2] + 0], r[2*p[3*i + 2] + 1] );
+			
+			fprintf(fptr,"3 0 1 2  1.0 0.0 1.0 1 }\n");
+		}
+	}
+	fprintf(fptr, "{ appearance  {+edge +face linewidth 2} LIST\n");
+	fprintf(fptr, "OFF\n");
 	fprintf(fptr,"%d %d 0\n", pnumber, id_start_poly);
 	for(i = 0; i < pnumber; i++)
 		fprintf(fptr,"%.3f %.3f 0\n", r[2*i + 0], r[2*i + 1]);
@@ -391,13 +406,14 @@ void write_geomview(double *r, int *p,  int pnumber,
 				fprintf(fptr,"%d ", polygon[j]);
 				
 		}
-
-		fprintf(fptr,"\n");
 		anterior = start_polygon[i] ;
+		fprintf(fptr,"\n");
 	}
-	if (print_triangles)
-	{
+
+	
+	if(print_triangles){
 		debug_msg("Imprimiendo triangulos\n");
+		fprintf(fptr, "{ appearance  {+edge -face linewidth 2} LIST\n");
 		int p0, p1,p2;
 		for(i = 0; i < tnumber; i++){
 			p0 = 3*i + 0;
@@ -422,7 +438,12 @@ void write_geomview(double *r, int *p,  int pnumber,
 			fprintf(fptr,"0 1 1 1\n");
 		}
 	}
-	fprintf(fptr,"} }\n");
+
+	fprintf(fptr," }\n");
+	if(print_triangles){
+		fprintf(fptr," }\n");
+		fprintf(fptr," }\n");
+	}
     fclose(fptr);
 
 }
