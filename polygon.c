@@ -107,8 +107,8 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
     int v_be, t, v_other, aux, origen;
 
     /*se calculca el valor optimo para el poligono */
-    A_poly = get_area_poly(poly, length_poly,r);
-    opt = A_poly/(num_BE+1);
+    A_poly = get_signed_area_poly(poly, length_poly,r);
+    opt = fabs(A_poly/(num_BE+1));
 
     debug_print("Area poly: %.2lf, opt = %.2lf\n", A_poly, opt);
 
@@ -134,11 +134,11 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
 	debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2););
 
 
-    A1 =get_area_poly(poly1, *length_poly1,r);
-    A2 = get_area_poly(poly2, *length_poly2,r);
+    A1 =get_signed_area_poly(poly1, *length_poly1,r);
+    A2 = get_signed_area_poly(poly2, *length_poly2,r);
 
     /* se calcula el r */
-    r_prev = fabs(fmin(A1, A2) - opt);
+    r_prev = fabs(fmin(fabs(A1), fabs(A2)) - opt);
     r_act = 0.0;
 
     debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
@@ -157,12 +157,12 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
             debug_msg("Dividiendo poligono de nuevo\n");
 
             split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
-            A1 =get_area_poly(poly1, *length_poly1,r);
-            A2 = get_area_poly(poly2,*length_poly2,r);
+            A1 =get_signed_area_poly(poly1, *length_poly1,r);
+            A2 = get_signed_area_poly(poly2,*length_poly2,r);
             debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1););
             debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2););
             
-            r_act = fabs(fmin(A1, A2) - opt);
+            r_act = fabs(fmin(fabs(A1), fabs(A2)) - opt);
             debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
         }
         if (r_act <= r_prev && v_other != -2){
@@ -170,7 +170,7 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
             debug_msg("Solución optima no encontrada, repitiendo\n");
         }
         else{
-            debug_print("Se encontro la optimización con r_act %.2lf", r_act);
+            debug_print("Se encontro la optimización con r_act %.2lf\n", r_act);
             v_other = search_prev_vertex_to_split(t, v_be, origen, triangles, adj);
             debug_print("Agregar edge %d - %d del nuevo triangulo %d | origen = %d \n", v_be, v_other,t, origen);
             split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
@@ -178,8 +178,8 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
 			debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1););
 			debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); );
             debug_block(
-            A1 =get_area_poly(poly1, *length_poly1,r);
-            A2 = get_area_poly(poly2,*length_poly2,r););
+            A1 =get_signed_area_poly(poly1, *length_poly1,r);
+            A2 = get_signed_area_poly(poly2,*length_poly2,r););
             debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
             debug_msg("División optima terminada\n");
             break;
@@ -238,7 +238,7 @@ void print_poly(int *poly, int length_poly){
     fprintf(stderr,"\n");
 }
 
-double get_area_poly(int *poly, int length_poly, double *r){
+double get_signed_area_poly(int *poly, int length_poly, double *r){
     double area = 0.0;
     double x1,y1,x2,y2;
     int i,j;
@@ -251,7 +251,7 @@ double get_area_poly(int *poly, int length_poly, double *r){
         y2=r[2*poly[j] + 1];
         area += (x1 + x2)*(y2 - y1);
     }
-    return fabs(area/2);
+    return area/2;
 }
 
 

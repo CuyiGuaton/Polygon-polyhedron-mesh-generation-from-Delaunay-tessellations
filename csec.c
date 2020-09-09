@@ -230,7 +230,6 @@ int main(int argc, char **argv)
 	{
 		if(visited[i] == FALSE){
 			fprintf(stderr,"ERROR hmnito mira, el triangulo %d no se visito ", i);
-			return 0;
 		}
 	}
 	
