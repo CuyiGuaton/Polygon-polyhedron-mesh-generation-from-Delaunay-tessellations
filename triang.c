@@ -127,7 +127,7 @@ static int get_edge_index(int u, int v, int i, int *p)
 	}
 	else
 	{
-		fprintf(stderr, "** ERROR ** get_edge_index: Arista {%d,%d} no pertenece al triángulo %d.\n", u, v, i);
+		fprintf(stderr, "%s:%d:%s() ** ERROR ** get_edge_index: Arista {%d,%d} no pertenece al triángulo %d.\n", __FILE__,  __LINE__, __func__, u, v, i);
 		exit(EXIT_FAILURE);
 	}
 }
@@ -439,7 +439,7 @@ int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, int *adj,
 			}
 		}
 				
-	printf("Error in %s\n", __func__);
+	fprintf(stderr,"%s:%d:%s() No se encontro triangulo que contiene el vertice %d \n",__FILE__,  __LINE__, __func__, v);
     exit(0);
 	return -1;
 }
@@ -471,7 +471,7 @@ int search_prev_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 	else  if(t1 == v && origen == a2)
 			return t0;	
 	
-	printf("Error in %s\n", __func__);
+	fprintf(stderr,"%s:%d:%s()No se pudo encontrar el vertice anterior para partición \n",__FILE__,  __LINE__, __func__);
     exit(0);
 	return -1;
 }
@@ -509,7 +509,7 @@ int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *a
 		return -2;
 	}
 
-	printf("Error in %s\n", __func__);
+	fprintf(stderr,"%s:%d:%s()No se pudo encontrar el vertice siguiente para partición \n",__FILE__,  __LINE__, __func__);
     exit(0);
 	return -1;
 }

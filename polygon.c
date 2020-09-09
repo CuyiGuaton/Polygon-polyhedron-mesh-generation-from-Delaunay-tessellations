@@ -19,23 +19,11 @@
 #define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
 //Verifica si es válido como triangulo semilla del poligono
-int is_valid(int i, int *adj, int *adj_copy, int *root_id, int num_fe){
+int is_BarrierEdge(int i, int *adj, int *adj_copy, int *root_id){
     //debug_print("i = %d, root_id[i] = %d, root_id[t0_adj] = %d, root_id[t1_adj] = %d, root_id[t2_adj] = %d\n", i, root_id[i], root_id[t0_adj], root_id[t1_adj], root_id[t2_adj]  );
     //if( root_id[i] != root_id[t0_adj] && root_id[i] != root_id[t1_adj] && root_id[i] != root_id[t2_adj] ){
     int j;
-    /*
-    for (j = 0; j < 3; j++)
-    {
-        debug_print("root_id[i] = %d, adj_copy[3*i + j] = %d, \n", root_id[i], adj_copy[3*i + j]);
-        if (adj_copy[3*i + j] != TRIANG_BORDER)
-        {
-          if (root_id[i] !=  root_id[adj_copy[3*i + j]])
-          {
-              return 1;
-          }
-        }  
-        
-    }*/
+    int num_fe = count_FrontierEdges(i, adj);
     if(num_fe == 3){
         return 1;
     }else if (num_fe == 1)
@@ -76,7 +64,7 @@ int is_valid(int i, int *adj, int *adj_copy, int *root_id, int num_fe){
 
 void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, int *adj, double *r, int tnumber, int *mesh, int *i_mesh, int *pos_poly, int *id_pos_poly){
 
-    debug_msg("Removiendo barrier edge de "); debug_block(print_poly(poly, length_poly); printf("\n"););
+    debug_msg("Removiendo barrier edge de "); debug_block(print_poly(poly, length_poly););
 
     int *poly1 = (int *)malloc(length_poly*sizeof(int));
 	int *poly2 = (int *)malloc(length_poly*sizeof(int));
@@ -132,7 +120,9 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
     debug_print("Agregar edge %d - %d del Triangulo %d \n", v_be, v_other,t);
     
     if(v_other == -1 || v_other == -2){
-        printf("No se puede agregar el edge %d - %d del Triangulo %d\n", v_be, v_other, t);
+        debug_print("No se puede agregar el edge %d - %d del Triangulo %d\n", v_be, v_other, t);
+        if(v_other == -2)
+            fprintf(stderr, "Caso critico especial, no encuentra vertices para avanzar en la busqueda de eliminación de barries edge, pero es la primera iteración");
         exit(0);
     }
 
@@ -140,8 +130,8 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
     /* Se divide el polygono en dos */
     split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
 
-    debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
-	debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
+    debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1););
+	debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2););
 
 
     A1 =get_area_poly(poly1, *length_poly1,r);
@@ -169,8 +159,8 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
             split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
             A1 =get_area_poly(poly1, *length_poly1,r);
             A2 = get_area_poly(poly2,*length_poly2,r);
-            debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
-            debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
+            debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1););
+            debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2););
             
             r_act = fabs(fmin(A1, A2) - opt);
             debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
@@ -185,8 +175,8 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
             debug_print("Agregar edge %d - %d del nuevo triangulo %d | origen = %d \n", v_be, v_other,t, origen);
             split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
             debug_msg("Poligonos generados\n");
-			debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1); printf("\n"););
-			debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); printf("\n"););
+			debug_msg("poly1: "); debug_block(print_poly(poly1, *length_poly1););
+			debug_msg("poly2: "); debug_block( print_poly(poly2, *length_poly2); );
             debug_block(
             A1 =get_area_poly(poly1, *length_poly1,r);
             A2 = get_area_poly(poly2,*length_poly2,r););
@@ -219,7 +209,7 @@ void split_poly(int *original_poly, int length_poly, int *poly1, int *length_pol
         }
     debug_print("Divide pos1: %d, pos2: %d \n", pos1, pos2);
     if(pos1 == -1 || pos2 == -1){
-        printf("%s:%d:%s(): No se encontro pos1 o pos2\n",__FILE__,  __LINE__, __func__);
+        fprintf(stderr, "%s:%d:%s(): No se encontro pos1 o pos2\n",__FILE__,  __LINE__, __func__);
         exit(0);
     }
     
@@ -242,9 +232,10 @@ int copy_poly(int *in, int *out, int len){
 
 void print_poly(int *poly, int length_poly){
     int i;
-    printf("(%d)", length_poly);
+    fprintf(stderr,"(%d)", length_poly);
     for (i = 0; i < length_poly; i++)
-        printf(" %d", poly[i]);   
+        fprintf(stderr," %d", poly[i]); 
+    fprintf(stderr,"\n");
 }
 
 double get_area_poly(int *poly, int length_poly, double *r){
@@ -298,14 +289,14 @@ int get_vertex_BarrierEdge(int *poly, int length_poly){
         if (poly[x] == poly[y])
             return poly[(i+1) %length_poly];
     }
-    printf("num_BE %d\n", count_BarrierEdges(poly, length_poly));
-    printf("%s:%d:%s(): No se encontro vertice BarrierEdge\n",__FILE__,  __LINE__, __func__);
+    fprintf(stderr,"num_BE %d\n", count_BarrierEdges(poly, length_poly));
+    fprintf(stderr,"%s:%d:%s(): No se encontro vertice BarrierEdge\n",__FILE__,  __LINE__, __func__);
     exit(0);
     return -1;
 }
 
 
-int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * visited, int i, int adj_counter) {
+int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * visited, int i) {
     int ind_poly = 0;
 	
 	int initial_point = 0;
@@ -317,6 +308,8 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
 	int continuous;
 	int k, aux;
 	int origen;
+
+    int adj_counter = count_FrontierEdges(i, adj);
     /*si tiene 3 se agregan y se corta el ciclo*/
     if (adj_counter == 3) {
         debug_print("T %d Tiene 3 Frontier edge, se guardan así\n", i);
@@ -376,6 +369,10 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
         t1 = adj[3 * i + 1];
         t2 = adj[3 * i + 2];
         /*fprintf(stderr,"\n \n \ni %d t %d %d %d \n", i, t0, t1, t2);*/
+        // Se puede reemplazar por 
+        //if(adj[3*i + j] == NO_AJD){
+        // poly[ind_poly] = triangles[3 * i + (j+1)%3];
+        // end_point = triangles[3 * i + (j+2)%3];
         if (t0 == NO_ADJ) {
 
             poly[ind_poly] = triangles[3 * i + 1];

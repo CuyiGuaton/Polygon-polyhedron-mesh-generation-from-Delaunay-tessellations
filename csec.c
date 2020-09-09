@@ -52,7 +52,8 @@ Errores cococidos
 int main(int argc, char **argv)
 {
 
-	debug_msg("RUNNING DEBUG BUILD\n\n\n");
+	debug_msg("RUNNING DEBUG BUILD\n");
+	freopen( "output/stderr.log", "w", stderr );
 
 	int pnumber;
 	int tnumber;
@@ -166,8 +167,8 @@ int main(int argc, char **argv)
 		
 	}
 
-	debug_block(print_poly(root_id, tnumber); printf("\n"););
-	int num_fe;
+	debug_block(print_poly(root_id, tnumber););
+	
 
 	/* Se crean los poligonos */
 
@@ -195,23 +196,23 @@ int main(int argc, char **argv)
 	{
 		/*busca fronter edge en un triangulo, hacer función está wea*/
 		
-		num_fe = count_FrontierEdges(i, adj);
+		
 
 		/* si tiene 2-3 froint edge y no ha sido visitado*/
 		//AGREGAR LA CONDICION DE QUE SI ROOT_ID = -1 ENTONCES NO GENERA POLY, MARCAR_ID[ALGO] == -1 DESPUES DE GENERAR C/POLY!!!
-		if(is_valid(i, adj,adj_copy,root_id,num_fe) && !visited[i]){
+		if(is_BarrierEdge(i, adj,adj_copy,root_id) && !visited[i]){
 
 				chose_seed_triangle[id_chose_seed_triangle] = i;
 				id_chose_seed_triangle++;
 
 				debug_msg("Generando polinomio\n");
-				length_poly = generate_polygon(poly, triangles, adj, r, visited, i, num_fe);
+				length_poly = generate_polygon(poly, triangles, adj, r, visited, i);
 				num_BE = count_BarrierEdges(poly, length_poly);
 				
 				
 				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 				/*
-				debug_msg("Poly: "); debug_block(print_poly(poly, length_poly); printf("\n"););
+				debug_msg("Poly: "); debug_block(print_poly(poly, length_poly););
 				if( num_BE > 0){
 					debug_print("Se dectecto %d BE\n", num_BE);
 					remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly);
@@ -228,7 +229,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < tnumber; i++) 
 	{
 		if(visited[i] == FALSE){
-			printf("hmnito mira, el triangulo %d no se visito ", i);
+			fprintf(stderr,"ERROR hmnito mira, el triangulo %d no se visito ", i);
 			return 0;
 		}
 	}
@@ -242,7 +243,9 @@ int main(int argc, char **argv)
 	free(adj);
 	free(max );
 	free(visited );
-
+	free(chose_seed_triangle);
+	free(root_id);
+	free(adj_copy);
 	free(area_poly);
 	free(mesh );
 	free(poly);
