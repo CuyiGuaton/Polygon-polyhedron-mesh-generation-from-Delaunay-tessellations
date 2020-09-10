@@ -24,13 +24,13 @@ int is_BarrierEdge(int i, int *adj, int *adj_copy, int *root_id){
     //if( root_id[i] != root_id[t0_adj] && root_id[i] != root_id[t1_adj] && root_id[i] != root_id[t2_adj] ){
     int j;
     int num_fe = count_FrontierEdges(i, adj);
+    debug_print("FE %d, Triangulo %d\n", num_fe, i);
     if(num_fe == 3){
         return 1;
     }else if (num_fe == 1)
     {
         for (j = 0; j < 3; j++)
         {
-            debug_print("root_id[i] = %d, adj_copy[3*i + j] = %d, \n", root_id[i], adj_copy[3*i + j]);
             if (adj_copy[3*i + j] != TRIANG_BORDER){
                 if (root_id[i] !=  root_id[adj_copy[3*i + j]])
                     return 1;
@@ -81,16 +81,19 @@ void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, 
     v_other = optimice_partition_polygon(&t1, v_be, poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
     t2 = get_adjacent_triangle(t1, v_other, v_be, triangles, adj);
 
+    debug_print("Eliminando arista de %d - %d de los triangulos  %d y %d", v_be, v_other, t1, t2);
     adj[3*t1 + get_edge(t1, v_be, v_other, triangles)] = NO_ADJ;
     adj[3*t2 + get_edge(t2, v_be, v_other, triangles)] = NO_ADJ;
 
     //posible bug, si se parte un BE puede omitir un vertice
     //solución, verificar si el triangulo que particiona es válido, sino se cambia.
+
+
     length_poly1 = generate_polygon(poly1, triangles, adj, r, visited, t1);
     length_poly2 = generate_polygon(poly2, triangles, adj, r, visited, t2);
 
     
-    num_BE_poly1 =count_BarrierEdges(poly1, length_poly1);
+    num_BE_poly1 = count_BarrierEdges(poly1, length_poly1);
     num_BE_poly2 = count_BarrierEdges(poly2, length_poly2);
 
     debug_print("num_BE_poly1 %d, num_BE_poly2 %d\n", num_BE_poly1, num_BE_poly2);
@@ -334,6 +337,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
 	int origen;
 
     int adj_counter = count_FrontierEdges(i, adj);
+    debug_print("Generando polinomio con triangulo %d FE %d\n", i, adj_counter);
     /*si tiene 3 se agregan y se corta el ciclo*/
     if (adj_counter == 3) {
         debug_print("T %d Tiene 3 Frontier edge, se guardan así\n", i);

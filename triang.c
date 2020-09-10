@@ -444,6 +444,7 @@ int count_FrontierEdges(int triangle, int *adj){
 }
 
 
+/*ESta función es demasiado costosa, optimizar*/
 int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, int *adj, int tnumber){
 	int i,j;
 	for (i = 0; i < tnumber; i++)

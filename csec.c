@@ -17,9 +17,11 @@ rbox 186 D2 z > data &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 1
 */
 
 /*
-Errores cococidos
+Problemas
 
-1.- rbox 10000 D2 z > data.dat &&  make  && ./uwu data.dat 0 dat > a.off && geomview a.off
+- search_triangle_by_vertex_with_FrontierEdge es demasiado costosa (O(n)), optimizar
+- posible bug en remove_BarrierEdge, si se parte un BE puede omitir un vertice (la puntita del BE)
+	solución, verificar si el triangulo que particiona es válido (contiene un BE), sino se cambia.
 
 
 */
@@ -205,10 +207,8 @@ int main(int argc, char **argv)
 				chose_seed_triangle[id_chose_seed_triangle] = i;
 				id_chose_seed_triangle++;
 
-				debug_msg("Generando polinomio\n");
 				length_poly = generate_polygon(poly, triangles, adj, r, visited, i);
 				num_BE = count_BarrierEdges(poly, length_poly);
-				
 				
 				//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 				
