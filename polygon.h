@@ -6,6 +6,6 @@ extern double get_signed_area_poly(int *poly, int length_poly, double *r);
 extern void split_poly(int *original_poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int e1, int e2);
 extern void print_poly(int *poly, int length_poly);
 extern int copy_poly(int *in, int *out, int len);
-extern void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int num_BE, int *triangles, int *adj, double *r, int tnumber);
-extern void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, int *adj, double *r, int tnumber, int *mesh, int *i_mesh, int *pos_poly, int *id_pos_poly);
+extern int optimice_partition_polygon(int *t_original, int v_be, int *poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int num_BE, int *triangles, int *adj, double *r, int tnumber);
+extern void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, int *adj, double *r, int tnumber, int *mesh, int *i_mesh, int *pos_poly, int *id_pos_poly, int *visited);
 extern int is_BarrierEdge(int i, int *adj, int *adj_copy, int *root_id);

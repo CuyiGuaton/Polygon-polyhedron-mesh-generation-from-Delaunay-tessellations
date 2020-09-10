@@ -210,17 +210,17 @@ int main(int argc, char **argv)
 				num_BE = count_BarrierEdges(poly, length_poly);
 				
 				
-				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
-				/*
+				//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+				
 				debug_msg("Poly: "); debug_block(print_poly(poly, length_poly););
 				if( num_BE > 0){
 					debug_print("Se dectecto %d BE\n", num_BE);
-					remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly);
+					remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly, visited);
 				}else{
 					debug_msg("Guardando poly\n");
 					save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 				}
-				*/
+				
 				
 			}
 	}

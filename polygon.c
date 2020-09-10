@@ -46,7 +46,7 @@ int is_BarrierEdge(int i, int *adj, int *adj_copy, int *root_id){
         for (j = 0; j < 3; j++)
         {
             int ind = 3*i + j;
-            int ind2 = 3*i + ((j + 1)%3);
+            int ind2 = 3*i + (j + 1)%3;
             if (adj_copy[ind] != TRIANG_BORDER && adj_copy[ind2] != TRIANG_BORDER){
                 if (root_id[i] !=  root_id[adj_copy[ind]] && root_id[i] !=  root_id[adj_copy[ind2]] )
                     return 1;
@@ -62,7 +62,7 @@ int is_BarrierEdge(int i, int *adj, int *adj_copy, int *root_id){
     return 0;
 }
 
-void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, int *adj, double *r, int tnumber, int *mesh, int *i_mesh, int *pos_poly, int *id_pos_poly){
+void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, int *adj, double *r, int tnumber, int *mesh, int *i_mesh, int *pos_poly, int *id_pos_poly, int *visited){
 
     debug_msg("Removiendo barrier edge de "); debug_block(print_poly(poly, length_poly););
 
@@ -70,26 +70,46 @@ void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, 
 	int *poly2 = (int *)malloc(length_poly*sizeof(int));
 	int length_poly1;
 	int length_poly2;
+    int num_BE_poly1;
+    int num_BE_poly2;
+    int v_be, v_other;
+    int t1, t2;
 
-    remove_BarrierEdge_from_polygon(poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
 
-    int num_BE_poly1 =count_BarrierEdges(poly1, length_poly1);
-    int num_BE_poly2 = count_BarrierEdges(poly2, length_poly2);
+    v_be = get_vertex_BarrierEdge(poly, length_poly);
+    t1 = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
+    v_other = optimice_partition_polygon(&t1, v_be, poly, length_poly, poly1, &length_poly1, poly2, &length_poly2, num_BE, triangles, adj, r, tnumber);
+    t2 = get_adjacent_triangle(t1, v_other, v_be, triangles, adj);
+
+    adj[3*t1 + get_edge(t1, v_be, v_other, triangles)] = NO_ADJ;
+    adj[3*t2 + get_edge(t2, v_be, v_other, triangles)] = NO_ADJ;
+
+    //posible bug, si se parte un BE puede omitir un vertice
+    //solución, verificar si el triangulo que particiona es válido, sino se cambia.
+    length_poly1 = generate_polygon(poly1, triangles, adj, r, visited, t1);
+    length_poly2 = generate_polygon(poly2, triangles, adj, r, visited, t2);
+
+    
+    num_BE_poly1 =count_BarrierEdges(poly1, length_poly1);
+    num_BE_poly2 = count_BarrierEdges(poly2, length_poly2);
 
     debug_print("num_BE_poly1 %d, num_BE_poly2 %d\n", num_BE_poly1, num_BE_poly2);
+
+
+
 
     if(num_BE_poly1 > 0 && num_BE_poly2 == 0){						
         debug_msg("Guardando poly2 y enviando recursivamente poly1\n");
         save_to_mesh(mesh, poly2, &(*i_mesh), length_poly2, pos_poly, &(*id_pos_poly));
-        remove_BarrierEdge(poly1, length_poly1, num_BE_poly1, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly));
+        remove_BarrierEdge(poly1, length_poly1, num_BE_poly1, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly), visited);
     }else if(num_BE_poly2 > 0 && num_BE_poly1 == 0){
         debug_msg("Guardando poly1 y enviando recursivamente poly2\n");
         save_to_mesh(mesh, poly1, &(*i_mesh), length_poly1, pos_poly, &(*id_pos_poly));
-        remove_BarrierEdge(poly2, length_poly2, num_BE_poly2, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly));
+        remove_BarrierEdge(poly2, length_poly2, num_BE_poly2, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly), visited);
     }else if(num_BE_poly1 > 0 && num_BE_poly2 > 0){
         debug_msg("Enviando recursivamente poly1 y poly2\n");
-        remove_BarrierEdge(poly1, length_poly1, num_BE_poly1, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly));
-        remove_BarrierEdge(poly2, length_poly2, num_BE_poly2, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly));
+        remove_BarrierEdge(poly1, length_poly1, num_BE_poly1, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly), visited);
+        remove_BarrierEdge(poly2, length_poly2, num_BE_poly2, triangles, adj, r, tnumber, mesh, &(*i_mesh), pos_poly, &(*id_pos_poly), visited);
     }else{
         debug_msg("Guardando poly1 y poly2\n");
         save_to_mesh(mesh, poly1, &(*i_mesh), length_poly1, pos_poly, &(*id_pos_poly));
@@ -102,9 +122,10 @@ void remove_BarrierEdge(int *poly, int length_poly, int num_BE, int *triangles, 
 
 /* Dado un poly con barrier edges
 Optimiza la división de este y devuelve poly1 y poly2*/
-void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int num_BE, int *triangles, int *adj, double *r, int tnumber){
+int optimice_partition_polygon(int *t_original, int v_be, int *poly, int length_poly, int *poly1, int *length_poly1, int *poly2, int *length_poly2, int num_BE, int *triangles, int *adj, double *r, int tnumber){
     double A_poly, A1, A2, opt, r_prev, r_act;
-    int v_be, t, v_other, aux, origen;
+    int v_other, aux, origen, t;
+    t = *t_original;
 
     /*se calculca el valor optimo para el poligono */
     A_poly = get_signed_area_poly(poly, length_poly,r);
@@ -112,9 +133,7 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
 
     debug_print("Area poly: %.2lf, opt = %.2lf\n", A_poly, opt);
 
-    /* se calcula el vertice a insertar en el polygono */
-    v_be = get_vertex_BarrierEdge(poly, length_poly);
-    t = search_triangle_by_vertex_with_FrontierEdge(v_be, triangles, adj, tnumber);
+    /*se calcula el otro vertice para partir poly*/
     v_other = search_next_vertex_to_split(t, v_be, -2, triangles, adj);
 
     debug_print("Agregar edge %d - %d del Triangulo %d \n", v_be, v_other,t);
@@ -172,6 +191,9 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
         else{
             debug_print("Se encontro la optimización con r_act %.2lf\n", r_act);
             v_other = search_prev_vertex_to_split(t, v_be, origen, triangles, adj);
+            *t_original = t;
+            return v_other;
+            /*
             debug_print("Agregar edge %d - %d del nuevo triangulo %d | origen = %d \n", v_be, v_other,t, origen);
             split_poly(poly, length_poly, poly1, &(*length_poly1), poly2, &(*length_poly2), v_be, v_other);
             debug_msg("Poligonos generados\n");
@@ -182,11 +204,13 @@ void remove_BarrierEdge_from_polygon(int *poly, int length_poly, int *poly1, int
             A2 = get_signed_area_poly(poly2,*length_poly2,r););
             debug_print("A: %.2lf, A1: %.2lf, A2:  %.2lf, A1/A = %.2lf, A2/A = %.2lf, r_prev = %.2lf, r_act = %.2lf\n", A_poly, A1 , A2,  A1/A_poly, A2/A_poly, r_prev, r_act);
             debug_msg("División optima terminada\n");
-            break;
+            */
+            
         }
         
     }
-    
+    exit(0);
+    return EXIT_FAILURE;
 }
 
 

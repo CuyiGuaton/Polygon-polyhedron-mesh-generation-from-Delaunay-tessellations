@@ -365,6 +365,21 @@ int get_adjacent_triangle(int i, int k, int l, int *p, int *adj)
 	return index;
 }
 
+int  get_edge(int i, int u, int v, int *p){
+	int j, ind1,ind2;
+	for(j = 0; j < 3; j++){
+		ind1 = 3*i + j;
+		ind2 = 3*i + (j+1)%3;
+		//debug_print("%d %d %d %d %d\n", ind1, ind2, ind3, (p[ind1] == u || p[ind2] == u), (p[ind1] == v || p[ind2] == v));
+		if( (p[ind1] == u || p[ind2] == u) && (p[ind1] == v || p[ind2] == v))
+			return (j+2)%3;
+	}
+	fprintf(stderr, "ERROR get_edge: No se encontro el edge %d - %d del triangulo %d", u,v,i);
+	exit(0);
+	return EXIT_FAILURE;
+
+}
+
 /*Indica si un triangulo contiene al punto endpoint*/
 int is_continuous(int i, int endpoint, int *p ){
 	int p0, p1, p2;
