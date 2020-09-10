@@ -86,12 +86,10 @@ int main(int argc, char **argv)
 
 	int *max;
 	int *visited;
-	int *is_seed;
 	int *root_id;
 	int *adj_copy;
 	adj_copy = (int *)malloc(3*tnumber*sizeof(int));
 	max = (int *)malloc(tnumber*sizeof(int));
-	is_seed = (int *)malloc(tnumber*sizeof(int));
 	visited = (int *)malloc(tnumber*sizeof(int));
 	root_id = (int *)malloc(tnumber*sizeof(int));
 	
@@ -105,7 +103,6 @@ int main(int argc, char **argv)
 	for(i = 0; i < tnumber; i++)
 	{
 		visited[i] = FALSE;
-		is_seed[i] = FALSE;
 		for (j = 0; j < 3; j++)
 		{
 			adj_copy[3*i + j] = adj[3*i + j];
@@ -135,7 +132,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	/* Etapa 3: Marcar triángulos semilla. */
+	/* Etapa 3: Marcar triángulos semilla. 
 	debug_msg("Etapa 3: Marcar triángulos semilla.\n");
 	for(i = 0; i < tnumber; i++)
 	{
@@ -151,7 +148,7 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-
+	*/
 	
 	/* Etapa 4: Generar regiones */
 	debug_msg("Etapa 4: Generar regiones\n");
