@@ -2,9 +2,12 @@
 
 Uso ej:
 
-rbox 186 D2 z > data.dat &&  make  && ./uwu data.dat 0 0 && geomview output/data.dat.off
+python3 rp.py 40 0 0.1  &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 1 && geomview output/data.dat.off
 
-make && ./uwu feamy_parabolic_main_norms_t3_hsize_01 1 1 && geomview output/feamy_parabolic_main_norms_t3_hsize_01.off
+python3 rp.py 100 2 0.1  &&  make CFLAGS=-DDEBUG  && ./uwu data.dat 0 1 && geomview output/data.dat.off
+
+ake CFLAGS=-DDEBUG  && ./uwu feamy_parabolic_main_norms_t3_hsize_01 1 0 && geomview output/feamy_parabolic_main_norms_t3_hsize_01.off
+
 
 argumentos:
 
