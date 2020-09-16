@@ -169,7 +169,7 @@ int main(int argc, char **argv)
 		
 	}
 
-	debug_block(print_poly(root_id, tnumber););
+	//debug_block(print_poly(root_id, tnumber););
 	
 
 	/* Se crean los poligonos */
@@ -202,7 +202,8 @@ int main(int argc, char **argv)
 
 		/* si tiene 2-3 froint edge y no ha sido visitado*/
 		//AGREGAR LA CONDICION DE QUE SI ROOT_ID = -1 ENTONCES NO GENERA POLY, MARCAR_ID[ALGO] == -1 DESPUES DE GENERAR C/POLY!!!
-		if(is_BarrierEdge(i, adj,adj_copy,root_id) && !visited[i]){
+		int num_FrontierEdges = count_FrontierEdges(i, adj);
+		if(!visited[i] && num_FrontierEdges > 0){
 
 				chose_seed_triangle[id_chose_seed_triangle] = i;
 				id_chose_seed_triangle++;

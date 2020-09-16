@@ -397,10 +397,10 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
     origen = aux;
 //        debug_print("k %d origen %d, conti %d\n", k, origen, continuous);
     debug_print("T_inicial %d | Triangles %d %d %d | ADJ  %d %d %d\n", i, triangles[3*i + 0], triangles[3*i + 1], triangles[3*i + 2], adj[3*i + 0], adj[3*i + 1], adj[3*i + 2]);
-    debug_print("initial_point %d endpoint %d\n", initial_point, end_point);
+    debug_print("initial_point %d endpoint %d | T_sig %d\n", initial_point, end_point, k);
 
-
-    while (initial_point != end_point) {
+    int triangugulo_initial = i;
+    while (initial_point != end_point || triangugulo_initial != k) {
 
         /*se marca el triangulo visto como visitado y se suma al area del poligono */
         
@@ -547,6 +547,7 @@ int generate_polygon(int * poly, int * triangles, int * adj, double *r, int * vi
         }
 
     }
+    
     return ind_poly;
 }
 
