@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 {
 
 	debug_msg("RUNNING DEBUG BUILD\n");
-	freopen( "output/stderr.log", "w", stderr );
+	//freopen( "output/stderr.log", "w", stderr );
 
 	int pnumber;
 	int tnumber;
