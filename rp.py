@@ -1,9 +1,7 @@
 import random
 import getopt, sys
 import numpy as np
-from bridson import poisson_disc_samples
-
-
+from math import sqrt
 
 def write_points(xPoints, yPoints):
     largo =len(xPoints)
@@ -15,45 +13,62 @@ def write_points(xPoints, yPoints):
 
     f.close()
 
-def generate_random_points(nPoints, xPoints, yPoints, dist = 0):
 
-    uwu = nPoints*10
+
+def equitalero(nPoints, xPoints, yPoints):
+    L = 2
+    h = sqrt(3) # = sqrt(3)*2/2
+    i = 0
+    for i in range(0, nPoints):
+        for j in range(0, nPoints):
+            xPoints.append(L*j if i%2 == 0 else L*j + L/2)
+            yPoints.append(i*h)
+        
+    
+
+def generate_random_points(nPoints, xPoints, yPoints):
+
+    uwu = nPoints
 
     for _ in range(0,nPoints-4):
-        x = random.randrange(-1*uwu, uwu)
-        y = random.randrange(-1*uwu, uwu)
+        x = random.randrange(0, uwu)
+        y = random.randrange(0, uwu)
         xPoints.append(int(x))
         yPoints.append(int(y))
 
-    xPoints.append(-1*(uwu + dist))
-    yPoints.append(-1*(uwu + dist))
+    xPoints.append(0)
+    yPoints.append(0)
 
-    xPoints.append(uwu + dist)
-    yPoints.append(uwu + dist)
+    xPoints.append(uwu)
+    yPoints.append(uwu)
 
-    xPoints.append(-1*(uwu + dist))
-    yPoints.append(uwu+ dist)
+    xPoints.append(0)
+    yPoints.append(uwu)
 
-    xPoints.append(uwu+ dist)
-    yPoints.append(-1*(uwu + dist))
+    xPoints.append(uwu)
+    yPoints.append(0)
+    move_edges(nPoints, xPoints, yPoints)
 
-def generate_bridson_points(nPoints, xPoints, yPoints, dist = 0):
-    
-    lst = poisson_disc_samples(width=nPoints, height=nPoints, r=10)    
-    xPoints.extend(x[0] for x in lst)
-    yPoints.extend(x[1] for x in lst)
-    
-    xPoints.append(0 - dist)
-    yPoints.append(0 - dist)
 
-    xPoints.append(nPoints + dist)
-    yPoints.append(nPoints + dist)
+def move_edges(nPoints, xPoints, yPoints):
+    tolerance =  0.05
+    n = nPoints
 
-    xPoints.append(0 - dist)
-    yPoints.append(nPoints + dist)
+    for i in range(0, len(xPoints)):
+        #eje x
+        if xPoints[i] >= nPoints*(1.0-tolerance): 
+            xPoints[i] = n
+            continue
+        if yPoints[i] >= nPoints*(1.0-tolerance): 
+            yPoints[i] = n
+            continue
+        if xPoints[i] <= nPoints*tolerance: 
+            xPoints[i] = 0
+            continue
+        if yPoints[i] <= nPoints*tolerance: 
+            yPoints[i] = 0
+            continue
 
-    xPoints.append(nPoints + dist)
-    yPoints.append(0 - dist)
     
 def generate_uniform_points(nPoints, xPoints, yPoints, dist = 0):
     
@@ -101,13 +116,11 @@ def main():
     #dist = nPoints*0.7
     
     if(selection == 0):
-        generate_random_points(nPoints, xPoints, yPoints, dist )
+        generate_random_points(nPoints, xPoints, yPoints)
     elif selection == 1:
-        generate_bridson_points(nPoints, xPoints, yPoints, dist)
+        equitalero(nPoints, xPoints, yPoints)
     elif selection == 2:
         generate_semi_uniform_points(nPoints, xPoints, yPoints, dist)
-
-        
 
     write_points(xPoints, yPoints)
     

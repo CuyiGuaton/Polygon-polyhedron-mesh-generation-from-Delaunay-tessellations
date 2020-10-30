@@ -16,6 +16,14 @@
 #define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
 #define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
+int Equality(double a, double b, double epsilon)
+{
+  return fabs(a - b) < epsilon;
+}
+
+int GreaterEqualthan(double a, double b, double epsilon){
+	return Equality(a,b,epsilon) || a > b;
+}
 
 /* dist
  * 
@@ -54,34 +62,57 @@ int max_edge_index(int i, double *r, int *p)
 	l0 = dist(r[2*p0 + 0], r[2*p0 + 1], r[2*p1 + 0], r[2*p1 + 1]);
 	l1 = dist(r[2*p1 + 0], r[2*p1 + 1], r[2*p2 + 0], r[2*p2 + 1]);
 	l2 = dist(r[2*p2 + 0], r[2*p2 + 1], r[2*p0 + 0], r[2*p0 + 1]);
-/*	
-	if((l0 >= l1 && l1 >= l2) || (l0 >= l2 && l2 >= l1))
+	double epsion = 0.001f;
+/*
+	//if((l0 >= l1 && l1 >= l2) || (l0 >= l2 && l2 >= l1))
+	if( (GreaterEqualthan(l0,l1,epsion) && GreaterEqualthan(l1,l2,epsion)) || ( GreaterEqualthan(l0,l2,epsion) && GreaterEqualthan(l2,l1,epsion)))
 	{
 		return 0;
 	}
-	else if((l1 >= l0 && l0 >= l2) || (l1 >= l2 && l2 >= l0))
+	//else if((l1 >= l0 && l0 >= l2) || (l1 >= l2 && l2 >= l0))
+	else if((GreaterEqualthan(l1,l0,epsion) && GreaterEqualthan(l0,l2,epsion)) || ( GreaterEqualthan(l1,l2,epsion) && GreaterEqualthan(l2,l0,epsion)))
 	{
 		return 1;
+	}
+	else
+	{
+		return 2;
+	}
+
+*/
+
+	//if((l2 >= l0 && l0 >= l1) || (l2 >= l1 && l1 >= l0))
+	if( (GreaterEqualthan(l2,l0,epsion) && GreaterEqualthan(l0,l1,epsion)) || ( GreaterEqualthan(l2,l1,epsion) && GreaterEqualthan(l1,l0,epsion)))
+	{
+		return 2;
+	}
+	//else if((l0 >= l1 && l1 >= l2) || (l0 >= l2 && l2 >= l1))
+	else if((GreaterEqualthan(l0,l1,epsion) && GreaterEqualthan(l1,l2,epsion)) || ( GreaterEqualthan(l0,l2,epsion) && GreaterEqualthan(l2,l1,epsion)))
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+	
+
+	/*	
+	if((l1 >= l0 && l0 >= l2) || (l1 >= l2 && l2 >= l0))
+	if( (GreaterEqualthan(l1,l0,epsion) && GreaterEqualthan(l0,l2,epsion)) || ( GreaterEqualthan(l1,l2,epsion) && GreaterEqualthan(l2,l0,epsion)))
+	{
+		return 1;
+	}
+	//else if((l0 >= l1 && l1 >= l2) || (l0 >= l2 && l2 >= l1))
+	else if((GreaterEqualthan(l0,l1,epsion) && GreaterEqualthan(l1,l2,epsion)) || ( GreaterEqualthan(l0,l2,epsion) && GreaterEqualthan(l2,l1,epsion)))
+	{
+		return 0;
 	}
 	else
 	{
 		return 2;
 	}
 	*/
-
-	
-	if((l2 >= l0 && l0 >= l1) || (l2 >= l1 && l1 >= l0))
-	{
-		return 2;
-	}
-	else if((l0 >= l1 && l1 >= l2) || (l0 >= l2 && l2 >= l1))
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
 }
 
 

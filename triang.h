@@ -13,3 +13,5 @@ extern int search_triangle_by_vertex_with_FrontierEdge(int v, int *triangles, in
 extern int search_next_vertex_to_split(int i, int v, int origen, int *triangles, int *adj);
 extern int search_prev_vertex_to_split(int i, int v, int origen, int *triangles, int *adj);
 extern int  get_edge(int i, int u, int v, int *p);
+extern int Equality(float a, float b, float epsilon);
+extern int GreaterEqualthan(float a, float b, float epsilon);

@@ -1,4 +1,4 @@
-/* Programa principal para O(n) secuencial. 
+/* Programa principa. 
 
 Uso ej:
 
@@ -205,25 +205,25 @@ int main(int argc, char **argv)
 		int num_FrontierEdges = count_FrontierEdges(i, adj);
 		if(!visited[i] && num_FrontierEdges > 0){
 
-				chose_seed_triangle[id_chose_seed_triangle] = i;
-				id_chose_seed_triangle++;
+			chose_seed_triangle[id_chose_seed_triangle] = i;
+			id_chose_seed_triangle++;
 
-				length_poly = generate_polygon(poly, triangles, adj, r, visited, i);
-				num_BE = count_BarrierEdges(poly, length_poly);
-				
-				//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
-				
-				debug_msg("Poly: "); debug_block(print_poly(poly, length_poly););
-				if( num_BE > 0){
-					debug_print("Se dectecto %d BE\n", num_BE);
-					remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly, visited);
-				}else{
-					debug_msg("Guardando poly\n");
-					save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
-				}
-				
-				
+			length_poly = generate_polygon(poly, triangles, adj, r, visited, i);
+			num_BE = count_BarrierEdges(poly, length_poly);
+			
+			//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
+			
+			debug_msg("Poly: "); debug_block(print_poly(poly, length_poly););
+			if( num_BE > 0){
+				debug_print("Se dectecto %d BE\n", num_BE);
+				remove_BarrierEdge(poly, length_poly, num_BE, triangles, adj, r, tnumber, mesh, &i_mesh, pos_poly, &id_pos_poly, visited);
+			}else{
+				debug_msg("Guardando poly\n");
+				save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 			}
+			
+			
+		}
 	}
 	
 	

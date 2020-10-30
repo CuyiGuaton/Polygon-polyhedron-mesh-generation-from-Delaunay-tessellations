@@ -18,6 +18,8 @@
 #define debug_print(fmt, ...) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); } while (0)
 #define debug_msg(fmt) do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__,  __LINE__, __func__); } while (0)
 
+
+
 //Verifica si es válido como triangulo semilla del poligono
 int is_BarrierEdge(int i, int *adj, int *adj_copy, int *root_id){
     //debug_print("i = %d, root_id[i] = %d, root_id[t0_adj] = %d, root_id[t1_adj] = %d, root_id[t2_adj] = %d\n", i, root_id[i], root_id[t0_adj], root_id[t1_adj], root_id[t2_adj]  );

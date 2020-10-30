@@ -41,14 +41,14 @@ void read_fromfiles_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 	int alignment;
 	int (*new_aligned_mem_size)(int);
 
+/*
 	if(align_settings != NULL)
 	{
-		/* Obtener alineamiento y función para calcular el tamaño
-		 * de la memoria alineada. */
+
 		alignment = *((int *)(align_settings[0]));
 		new_aligned_mem_size = align_settings[1];
 	}
-	
+*/	
 	/* guardar puntos */
 	char cmd[1024] = "\0";
 	strcat(cmd, filespath);
@@ -238,13 +238,12 @@ void read_qdelaunay_data(char *ppath, double **r, int **p, int **adj, int *pnumb
 	int alignment;
 	int (*new_aligned_mem_size)(int);
 	
-	if(align_settings != NULL)
+	/*if(align_settings != NULL)
 	{
-		/* Obtener alineamiento y función para calcular el tamaño
-		 * de la memoria alineada. */
+
 		alignment = *((int *)(align_settings[0]));
 		new_aligned_mem_size = align_settings[1];
-	}
+	}*/
 	
 	/* Construir comando a ejecutar. */
 	strcpy(cmd,  cmdname);
@@ -445,7 +444,8 @@ void write_geomview(double *r, int *p,  int pnumber,
 		fprintf(fptr," }\n");
 	}
     fclose(fptr);
-
+//printf("%d %d %d", 6.928203230275509 == 6.928203230275509, 6.928203230275509 > 6.928203230275509, 6.928203230275509 >= 6.928203230275509);
+//printf("%d %d %d", 6.928203230275519 == 6.928203230275509, 6.928203230275519 > 6.928203230275509, 6.928203230275519 >= 6.928203230275509);
 }
 
 
@@ -484,5 +484,7 @@ void read_triangles(char *cpath, int **id, int *inumber)
 		(*id)[i] = tmp_int1;
 	}
 	
+	
+
 	fclose(pf);
 }
