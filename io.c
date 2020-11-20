@@ -374,7 +374,7 @@ void write_geomview(double *r, int *p,  int pnumber,
 		perror("fopen");
 		exit(0);
 	}
-	
+	/*
 	if (print_triangles)
 	{
 		debug_print("Imprimiendo %d triangulos semilla", id_chose_seed_triangle);
@@ -390,7 +390,7 @@ void write_geomview(double *r, int *p,  int pnumber,
 			
 			fprintf(fptr,"3 0 1 2  1.0 0.0 1.0 1 }\n");
 		}
-	}
+	}*/
 	debug_print("Imprimiendo %d poligonos\n", id_start_poly);
 	fprintf(fptr, "{ appearance  {+edge +face linewidth 2} LIST\n");
 	fprintf(fptr, "OFF\n");

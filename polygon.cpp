@@ -303,8 +303,10 @@ int count_BarrierEdges(int *poly, int length_poly){
     {
         x = i % length_poly;
         y = (i+2) % length_poly;
-        if (poly[x] == poly[y])
+        if (poly[x] == poly[y]){
+            printf("px: %d  py: %d\n", poly[x], poly[y]);
             count++;
+        }
     }
     return count;
 }
