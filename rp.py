@@ -20,14 +20,14 @@ def equitalero(nPoints, xPoints, yPoints):
     h = sqrt(3) # = sqrt(3)*2/2
     i = 0
     for i in range(0, nPoints):
+        if i%2 != 0:
+            xPoints.append(L*0)
+            yPoints.append(i*h)
         for j in range(0, nPoints):
             xPoints.append(L*j if i%2 == 0 else L*j + L/2)
             yPoints.append(i*h)
         if i%2 == 0:
             xPoints.append(L*(nPoints-1) + L/2)
-            yPoints.append(i*h)
-        else:
-            xPoints.append(L*0)
             yPoints.append(i*h)
         
     
