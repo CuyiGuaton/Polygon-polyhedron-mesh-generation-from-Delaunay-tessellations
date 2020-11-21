@@ -213,6 +213,10 @@ int main(int argc, char **argv)
 			
 			//save_to_mesh(mesh, poly, &i_mesh, length_poly, pos_poly, &id_pos_poly);	
 			
+			if(num_BE>0){
+				printf("%d %d\n", num_BE, length_poly);
+			}
+
 			debug_msg("Poly: "); debug_block(print_poly(poly, length_poly););
 			if( num_BE > 0){
 				debug_print("Se dectecto %d BE\n", num_BE);

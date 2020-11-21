@@ -23,6 +23,12 @@ def equitalero(nPoints, xPoints, yPoints):
         for j in range(0, nPoints):
             xPoints.append(L*j if i%2 == 0 else L*j + L/2)
             yPoints.append(i*h)
+        if i%2 == 0:
+            xPoints.append(L*(nPoints-1) + L/2)
+            yPoints.append(i*h)
+        else:
+            xPoints.append(L*0)
+            yPoints.append(i*h)
         
     
 
@@ -51,23 +57,39 @@ def generate_random_points(nPoints, xPoints, yPoints):
 
 
 def move_edges(nPoints, xPoints, yPoints):
-    tolerance =  0.05
+    tolerance =  0.025
     n = nPoints
+    r = random.uniform(0, 1)
 
     for i in range(0, len(xPoints)):
         #eje x
-        if xPoints[i] >= nPoints*(1.0-tolerance): 
-            xPoints[i] = n
-            continue
-        if yPoints[i] >= nPoints*(1.0-tolerance): 
-            yPoints[i] = n
-            continue
-        if xPoints[i] <= nPoints*tolerance: 
-            xPoints[i] = 0
-            continue
-        if yPoints[i] <= nPoints*tolerance: 
-            yPoints[i] = 0
-            continue
+        if r > 0.5:
+            if xPoints[i] >= nPoints*(1.0-tolerance): 
+                xPoints[i] = n
+                continue
+            if yPoints[i] >= nPoints*(1.0-tolerance): 
+                yPoints[i] = n
+                continue
+            if xPoints[i] <= nPoints*tolerance: 
+                xPoints[i] = 0
+                continue
+            if yPoints[i] <= nPoints*tolerance: 
+                yPoints[i] = 0
+                continue
+        else:
+            if xPoints[i] <= nPoints*tolerance: 
+                xPoints[i] = 0
+                continue
+            if yPoints[i] <= nPoints*tolerance: 
+                yPoints[i] = 0
+                continue
+            if xPoints[i] >= nPoints*(1.0-tolerance): 
+                xPoints[i] = n
+                continue
+            if yPoints[i] >= nPoints*(1.0-tolerance): 
+                yPoints[i] = n
+                continue
+
 
     
 def generate_uniform_points(nPoints, xPoints, yPoints, dist = 0):
